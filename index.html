@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>THE TABLE — Ontologicore · Build 031.1</title>
+<title>THE TABLE — Ontologicore · Build 032.1</title>
 <style>
 :root{
   --ink:#2f2731; --cream:#fffaf2; --paper:#fffdf8; --gold:#b89556;
@@ -172,7 +172,7 @@ rgba(255,255,255,.52);background-size:32px 32px;border-radius:28px;border:1px so
 <div class="brand">ONTOLOGICORE</div><div class="softline"></div><h1>THE TABLE</h1><p><i>A space for braver questions.</i></p>
 <p>Put a question down. See what survives.</p>
 <textarea id="firstquestion" placeholder="What are we looking at?"></textarea>
-<div class="controls"><button class="pill primary" id="enter">PUT IT ON THE TABLE</button><button class="pill" id="demo">OPEN A DEMO TABLE</button></div>
+<div class="controls"><button class="pill primary" id="enter">PUT IT ON THE TABLE</button><button class="pill" id="demo">SEE AN EXAMPLE</button></div>
 <div class="softline"></div><small>Explore what could be true. Test what the evidence allows. Keep what remains.</small>
 </div></div>
 <div class="app">
@@ -191,7 +191,7 @@ rgba(255,255,255,.52);background-size:32px 32px;border-radius:28px;border:1px so
         <button class="pill" data-consequence="LIGHT">LIGHT</button><button class="pill active" data-consequence="MATERIAL">MATERIAL</button><button class="pill" data-consequence="HIGH">HIGH</button>
       </div>
     </div>
-    <div class="versionbanner show" id="versionbanner">THE TABLE · v0.1 · BUILD 031.1 · LOCAL PROTOTYPE</div>
+    <div class="versionbanner show" id="versionbanner">THE TABLE · v0.1 · BUILD 032.1 · LOCAL PROTOTYPE</div>
 
     <div class="hardener" id="hardener">
       <div class="eyebrow">HERE'S THE QUESTION UNDERNEATH IT</div>
@@ -983,10 +983,15 @@ document.querySelectorAll('[data-effect]').forEach(btn=>btn.onclick=()=>{
  addObject('NOTE','WITNESS '+test+' on '+selectedTarget.text+' — '+effect+': '+finding,false);
  document.getElementById('witnessmodal').classList.remove('show');renderConnections();bump(test+' → '+effect);persist();
 });
-document.getElementById('save').onclick=()=>{persist();bump('Record saved');alert('Saved locally. Build 031.1 preserves Reference, objects, proposed connections, timeline coordinate, and active runtime stage.')};
+document.getElementById('save').onclick=()=>{persist();bump('Record saved');alert('Saved locally. Build 032.1 preserves Reference, objects, proposed connections, timeline coordinate, and active runtime stage.')};
 document.getElementById('breathe').onclick=()=>{bump('Failsafe invoked');evaluateFailsafe()};
 document.getElementById('keepremains').onclick=keepRemains;
 document.getElementById('resume').onclick=()=>{document.getElementById('autostop').classList.remove('show');lastDiscriminationT=t;bump('Failsafe released because a new distinction was declared')};
-ref.addEventListener('input',persist);restore();if(localStorage.getItem('theTableBuild031'))document.getElementById('onboard').classList.add('hidden');if(!snapshots.length){captureSnapshot();persist()}else renderSnapbar();
+ref.addEventListener('input',persist);
+restore();
+/* THE TABLE landing page is the intentional front door on every fresh load.
+   Existing local state remains preserved underneath until the visitor enters. */
+document.getElementById('onboard').classList.remove('hidden');
+if(!snapshots.length){captureSnapshot();persist()}else renderSnapbar();
 </script>
 </body></html>
