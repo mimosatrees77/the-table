@@ -878,6 +878,30 @@ function deriveNextMove(){
 }
 function renderRecord(){
  document.getElementById('result').textContent=tableResult;
+document.querySelectorAll('[data-result]').forEach(x=>x.classList.toggle('chosen',x.dataset.result===tableResult));
+ const holds=document.getElementById('holdslist'),fails=document.getElementById('failslist'),unknown=document.getElementById('unknownlist'),hist=document.getElementById('historylist');
+ holds.innerHTML='';fails.innerHTML='';unknown.innerHTML='';hist.innerHTML='';
+ const os=objects();
+ os.filter(o=>o.type==='OBSERVATION'||o.type==='SOURCE').forEach(o=>{const li=document.createElement('li');li.textContent=o.text;holds.appendChild(li)});
+ connections.forEach(c=>{
+  const a=os.find(x=>x.id===c.from),b=os.find(x=>x.id===c.to);if(!a||!b)return;
+  const txt=a.text+' → '+b.text+' ('+c.relation+')';
+  if(c.status==='SUPPORTED'){const li=document.createElement('li');li.textContent=txt;holds.appendChild(li)}
+  else if(c.status==='NOT SUPPORTED'){const li=document.createElement('li');li.textContent=txt;fails.appendChild(li)}
+  else {const li=document.createElement('li');li.textContent=txt;unknown.appendChild(li)}
+  (c.history||[]).forEach(h=>{const d=document.createElement('div');d.className='historyline';d.innerHTML='<b>'+h.test+' → '+h.effect+'</b><br>'+h.finding+' <small>('+h.at+')</small>';hist.appendChild(d)})
+ });
+ os.filter(o=>o.type==='QUESTION').forEach(o=>{const li=document.createElement('li');li.textContent=o.text;unknown.appendChild(li)});
+ if(!holds.children.length)holds.innerHTML='<li>No supported material recorded yet.</li>';
+ if(!fails.children.length)fails.innerHTML='<li>No failed Formation recorded yet.</li>';
+ if(!unknown.children.length)unknown.innerHTML='<li>No unresolved item recorded.</li>';
+ if(!hist.children.length)hist.innerHTML='<div class="historyline">No Witness findings recorded yet.</div>';
+ eventLog.slice(-8).forEach(e=>{const d=document.createElement('div');d.className='historyline';d.innerHTML='<b>'+e.coordinate+'</b> '+e.event;hist.appendChild(d)});
+ document.getElementById('scopefield').value=scopeText;document.getElementById('changefield').value=changeText;
+}
+function renderRuntime(){const bar=document.getElementById('runtimebar');if(!activeRuntime){bar.classList.remove('show');return}const r=runtimes[activeRuntime];bar.classList.add('show');document.getElementById('runtimename').textContent=activeRuntime;const st=document.getElementById('stages');st.innerHTML='';r.stages.forEach((x,i)=>{const d=document.createElement('div');d.className='stage '+(i<stageIndex?'done':i===stageIndex?'active':'');d.textContent=x;st.appendChild(d)});document.getElementById('stageprompt').innerHTML='<b>'+r.stages[stageIndex]+'</b><br>'+r.prompts[stageIndex];document.getElementById('stagenext').textContent=stageIndex===r.stages.length-1?'COMPLETE RUN':'COMPLETE STAGE →'}
+function startRuntime(name){activeRuntime=name;stageIndex=0;renderRuntime();document.getElementById('toolmodal').classList.remove('show');bump(name+' started')}
+function advanceStage(outcome){if(!activeRuntime)return;const r=runtimes[activeRuntime];addObject('NOTE',activeRuntime+' · '+r.stages[stageIndex]+' — '+outcome,false);bump(activeRuntime+' '+r.stages[stageIndex]+' '+outcome.toLowerCase());if(stageIndex<r.stages.length-1){stageIndex++;renderRuntime();persist()}else{const done=activeRuntime;activeRuntime=null;stageIndex=0;renderRuntime();bump(done+' completed');renderRecord();document.getElementById('modal').classList.add('show')}}
  document.getElementById('enter').onclick=()=>{const q=document.getElementById('firstquestion').value.trim();if(!q){alert('Put a question down first.');return}enterTable(q,false)};
 document.getElementById('demo').onclick=()=>enterTable('',true);
 document.getElementById('newtable').onclick=resetTable;
@@ -926,30 +950,7 @@ document.getElementById('adddim').onclick=()=>{const v=document.getElementById('
 document.getElementById('runcompare').onclick=runCompare;
 document.getElementById('analyze').onclick=deriveNextMove;
 document.getElementById('acceptsuggestion').onclick=()=>{const b=document.getElementById('acceptsuggestion');addObject(b.dataset.type,b.dataset.text,true,null,true);b.style.display='none'};
-document.querySelectorAll('[data-result]').forEach(x=>x.classList.toggle('chosen',x.dataset.result===tableResult));
- const holds=document.getElementById('holdslist'),fails=document.getElementById('failslist'),unknown=document.getElementById('unknownlist'),hist=document.getElementById('historylist');
- holds.innerHTML='';fails.innerHTML='';unknown.innerHTML='';hist.innerHTML='';
- const os=objects();
- os.filter(o=>o.type==='OBSERVATION'||o.type==='SOURCE').forEach(o=>{const li=document.createElement('li');li.textContent=o.text;holds.appendChild(li)});
- connections.forEach(c=>{
-  const a=os.find(x=>x.id===c.from),b=os.find(x=>x.id===c.to);if(!a||!b)return;
-  const txt=a.text+' → '+b.text+' ('+c.relation+')';
-  if(c.status==='SUPPORTED'){const li=document.createElement('li');li.textContent=txt;holds.appendChild(li)}
-  else if(c.status==='NOT SUPPORTED'){const li=document.createElement('li');li.textContent=txt;fails.appendChild(li)}
-  else {const li=document.createElement('li');li.textContent=txt;unknown.appendChild(li)}
-  (c.history||[]).forEach(h=>{const d=document.createElement('div');d.className='historyline';d.innerHTML='<b>'+h.test+' → '+h.effect+'</b><br>'+h.finding+' <small>('+h.at+')</small>';hist.appendChild(d)})
- });
- os.filter(o=>o.type==='QUESTION').forEach(o=>{const li=document.createElement('li');li.textContent=o.text;unknown.appendChild(li)});
- if(!holds.children.length)holds.innerHTML='<li>No supported material recorded yet.</li>';
- if(!fails.children.length)fails.innerHTML='<li>No failed Formation recorded yet.</li>';
- if(!unknown.children.length)unknown.innerHTML='<li>No unresolved item recorded.</li>';
- if(!hist.children.length)hist.innerHTML='<div class="historyline">No Witness findings recorded yet.</div>';
- eventLog.slice(-8).forEach(e=>{const d=document.createElement('div');d.className='historyline';d.innerHTML='<b>'+e.coordinate+'</b> '+e.event;hist.appendChild(d)});
- document.getElementById('scopefield').value=scopeText;document.getElementById('changefield').value=changeText;
-}
-function renderRuntime(){const bar=document.getElementById('runtimebar');if(!activeRuntime){bar.classList.remove('show');return}const r=runtimes[activeRuntime];bar.classList.add('show');document.getElementById('runtimename').textContent=activeRuntime;const st=document.getElementById('stages');st.innerHTML='';r.stages.forEach((x,i)=>{const d=document.createElement('div');d.className='stage '+(i<stageIndex?'done':i===stageIndex?'active':'');d.textContent=x;st.appendChild(d)});document.getElementById('stageprompt').innerHTML='<b>'+r.stages[stageIndex]+'</b><br>'+r.prompts[stageIndex];document.getElementById('stagenext').textContent=stageIndex===r.stages.length-1?'COMPLETE RUN':'COMPLETE STAGE →'}
-function startRuntime(name){activeRuntime=name;stageIndex=0;renderRuntime();document.getElementById('toolmodal').classList.remove('show');bump(name+' started')}
-function advanceStage(outcome){if(!activeRuntime)return;const r=runtimes[activeRuntime];addObject('NOTE',activeRuntime+' · '+r.stages[stageIndex]+' — '+outcome,false);bump(activeRuntime+' '+r.stages[stageIndex]+' '+outcome.toLowerCase());if(stageIndex<r.stages.length-1){stageIndex++;renderRuntime();persist()}else{const done=activeRuntime;activeRuntime=null;stageIndex=0;renderRuntime();bump(done+' completed');renderRecord();document.getElementById('modal').classList.add('show')}}
+
 document.getElementById('lockref').onclick=()=>{if(!locked){if(!originalQuestion)originalQuestion=ref.value;const p=hardenQuestion(ref.value);if(p){document.getElementById('proposal').textContent=p;document.getElementById('hardener').classList.add('show');return}}locked=!locked;ref.readOnly=locked;lockstate.textContent=locked?'· LOCKED':'· UNLOCKED';document.getElementById('lockref').textContent=locked?'UNLOCK REFERENCE':'LOCK REFERENCE';bump(locked?'Reference locked':'Reference unlocked')};
 document.getElementById('useproposal').onclick=()=>{ref.value=document.getElementById('proposal').textContent;document.getElementById('hardener').classList.remove('show');locked=true;ref.readOnly=true;lockstate.textContent='· LOCKED';document.getElementById('lockref').textContent='UNLOCK REFERENCE';bump('Hardened Reference locked')};
 document.getElementById('editproposal').onclick=()=>{ref.value=document.getElementById('proposal').textContent;document.getElementById('hardener').classList.remove('show');ref.focus()};
