@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>THE TABLE — Ontologicore · Build 031</title>
+<title>THE TABLE — Ontologicore · Build 031.1</title>
 <style>
 :root{
   --ink:#2f2731; --cream:#fffaf2; --paper:#fffdf8; --gold:#b89556;
@@ -191,7 +191,7 @@ rgba(255,255,255,.52);background-size:32px 32px;border-radius:28px;border:1px so
         <button class="pill" data-consequence="LIGHT">LIGHT</button><button class="pill active" data-consequence="MATERIAL">MATERIAL</button><button class="pill" data-consequence="HIGH">HIGH</button>
       </div>
     </div>
-    <div class="versionbanner show" id="versionbanner">THE TABLE · v0.1 · BUILD 031 · LOCAL PROTOTYPE</div>
+    <div class="versionbanner show" id="versionbanner">THE TABLE · v0.1 · BUILD 031.1 · LOCAL PROTOTYPE</div>
 
     <div class="hardener" id="hardener">
       <div class="eyebrow">HERE'S THE QUESTION UNDERNEATH IT</div>
@@ -956,7 +956,7 @@ document.getElementById('editproposal').onclick=()=>{ref.value=document.getEleme
 document.getElementById('keepmine').onclick=()=>{document.getElementById('hardener').classList.remove('show');locked=true;ref.readOnly=true;lockstate.textContent='· LOCKED';document.getElementById('lockref').textContent='UNLOCK REFERENCE';bump('Original Reference locked')};
 document.getElementById('connect').onclick=()=>{if(selectedIds.length!==2){alert('Select exactly two Table objects first.');return}const relation=prompt('What relation are you proposing between these two objects?','may relate to');if(!relation)return;connections.push({id:'R'+Date.now(),from:selectedIds[0],to:selectedIds[1],relation,status:'PROPOSED',createdAt:'T'+(t+1),history:[]});document.querySelectorAll('.object.selected').forEach(x=>x.classList.remove('selected'));selectedIds=[];renderConnections();bump('Connection proposed')};
 document.querySelectorAll('[data-op]').forEach(c=>c.onclick=()=>{currentOp=c.dataset.op;if(currentOp==='COMPARE'){openCompare();return}if(currentOp==='NARROW'||currentOp==='WIDEN'){openScope(currentOp);return}if(['SUBTRACT','COLLAPSE','NAME'].includes(currentOp)){openOperatorTray(currentOp);return}if(currentOp==='TRANSFER'){openTransfer();return}if(currentOp==='HOLD'){applyHold();return}if(currentOp==='COMPRESS'){openCompress();return}if(currentOp==='RETURN'){openReturn();return}if(currentOp==='REORDER'){openReorder();return}if(currentOp==='LOOK'){applyLook();return}if(currentOp==='SEPARATE'){applySeparate();return}if(currentOp==='TURN'){applyTurn();return}if(currentOp==='PRESS'){openPress();return}if(currentOp==='STRIKE'){applyStrike();return}bump(currentOp+' selected');document.querySelectorAll('[data-op]').forEach(x=>x.style.outline='');c.style.outline='2px solid #b89556'});
-document.querySelectorAll('[data-test]').forEach(c=>c.onclick=()=>openWitness(c.dataset.test));return}document.querySelectorAll('[data-test]').forEach(x=>x.style.outline='');c.style.outline='2px solid #b89556';document.getElementById('witnessname').textContent=c.dataset.test;document.getElementById('witnessquestion').textContent=witnessQ[c.dataset.test]||c.querySelector('em').textContent;document.getElementById('witnessfinding').value='';document.getElementById('witnessmodal').dataset.test=c.dataset.test;document.getElementById('witnessmodal').classList.add('show')});
+document.querySelectorAll('[data-test]').forEach(c=>c.onclick=()=>openWitness(c.dataset.test));
 document.querySelectorAll('[data-consequence]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-consequence]').forEach(x=>x.classList.remove('active'));b.classList.add('active');consequence=b.dataset.consequence;closureCheck();bump('Consequence set to '+consequence)});
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-mode]').forEach(x=>x.classList.remove('active'));b.classList.add('active');bump(b.dataset.mode+' mode')});
 document.querySelectorAll('[data-quick]').forEach(b=>b.onclick=()=>{document.getElementById('otype').value=b.dataset.quick;document.getElementById('newobj').focus();document.getElementById('newobj').placeholder='Add '+b.dataset.quick.toLowerCase()+'…'});
@@ -981,7 +981,7 @@ document.querySelectorAll('[data-effect]').forEach(btn=>btn.onclick=()=>{
  addObject('NOTE','WITNESS '+test+' on '+selectedTarget.text+' — '+effect+': '+finding,false);
  document.getElementById('witnessmodal').classList.remove('show');renderConnections();bump(test+' → '+effect);persist();
 });
-document.getElementById('save').onclick=()=>{persist();bump('Record saved');alert('Saved locally. Build 031 preserves Reference, objects, proposed connections, timeline coordinate, and active runtime stage.')};
+document.getElementById('save').onclick=()=>{persist();bump('Record saved');alert('Saved locally. Build 031.1 preserves Reference, objects, proposed connections, timeline coordinate, and active runtime stage.')};
 document.getElementById('breathe').onclick=()=>{bump('Failsafe invoked');evaluateFailsafe()};
 document.getElementById('keepremains').onclick=keepRemains;
 document.getElementById('resume').onclick=()=>{document.getElementById('autostop').classList.remove('show');lastDiscriminationT=t;bump('Failsafe released because a new distinction was declared')};
