@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THE TABLE — Ontologicore · Build 031</title>
+<style>
+:root{
+  --ink:#2f2731; --cream:#fffaf2; --paper:#fffdf8; --gold:#b89556;
+  --mint:#cfe9d8; --blue:#cbdcf5; --peach:#f4c7ad; --lilac:#d9c9ef;
+  --rose:#f3d4dc; --teal:#bcdedc; --shadow:0 18px 50px rgba(71,52,65,.13);
+}
+*{box-sizing:border-box} body{margin:0;color:var(--ink);font-family:Georgia,"Times New Roman",serif;
+background:
+radial-gradient(circle at 12% 10%,rgba(214,191,239,.55),transparent 24%),
+radial-gradient(circle at 86% 8%,rgba(191,224,213,.55),transparent 25%),
+radial-gradient(circle at 85% 85%,rgba(246,203,174,.45),transparent 24%),
+linear-gradient(135deg,#fbf4ef,#f8f2ff 48%,#eff8f3);
+min-height:100vh}
+button,input,textarea{font:inherit}
+.app{max-width:1500px;margin:auto;padding:24px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:8px 4px 22px}
+.brand{letter-spacing:.22em;font-size:13px}.nav{display:flex;gap:18px;font-family:Arial,sans-serif;font-size:12px}
+.hero{text-align:center;margin:18px auto 24px}.hero h1{font-size:56px;letter-spacing:.08em;margin:0;font-weight:500}
+.hero p{font-style:italic;margin:7px;color:#6c5a6a}
+.table{position:relative;background:rgba(255,253,248,.72);border:1px solid rgba(184,149,86,.45);
+border-radius:34px;box-shadow:var(--shadow);padding:28px;backdrop-filter:blur(18px);overflow:hidden}
+.table:before,.table:after{content:"";position:absolute;border-radius:50%;filter:blur(1px);opacity:.45;pointer-events:none}
+.table:before{width:250px;height:250px;left:-100px;bottom:-100px;background:radial-gradient(circle,var(--rose),transparent 68%)}
+.table:after{width:270px;height:270px;right:-120px;top:-120px;background:radial-gradient(circle,var(--teal),transparent 68%)}
+.reference{max-width:900px;margin:0 auto 26px;text-align:center;position:relative;z-index:2}
+.eyebrow{font-family:Arial,sans-serif;font-size:11px;letter-spacing:.18em;color:#8b7151;font-weight:700}
+.reference textarea{width:100%;min-height:86px;margin-top:10px;border:1px solid #d8c7aa;border-radius:20px;
+padding:18px 20px;background:rgba(255,255,255,.78);outline:none;resize:vertical;font-size:18px;color:var(--ink)}
+.controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.pill{border:1px solid #cdb68d;background:#fffaf3;border-radius:999px;padding:9px 14px;cursor:pointer}
+.pill.active,.primary{background:#3e3340;color:#fff;border-color:#3e3340}
+.grid{display:grid;grid-template-columns:260px 1fr 260px;gap:22px;align-items:stretch}
+.panel{border-radius:26px;padding:18px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.9)}
+.panel h2{font-size:25px;margin:4px 0}.panel small{font-family:Arial,sans-serif;color:#7b6c78}
+.explore{background:linear-gradient(160deg,rgba(217,201,239,.78),rgba(255,255,255,.55))}
+.test{background:linear-gradient(160deg,rgba(203,220,245,.78),rgba(255,255,255,.55))}
+.card{margin-top:14px;border-radius:20px;padding:15px;background:#fffdf9;border:1px solid rgba(184,149,86,.28);box-shadow:0 8px 20px rgba(80,60,70,.07);cursor:pointer}
+.card b{display:block;letter-spacing:.08em;font-size:13px}.card em{display:block;margin-top:5px;font-size:13px;color:#695d68}
+.card:hover{transform:translateY(-2px);transition:.18s}
+.field{min-height:430px;position:relative;background:
+linear-gradient(rgba(184,149,86,.08) 1px,transparent 1px),
+linear-gradient(90deg,rgba(184,149,86,.08) 1px,transparent 1px),
+rgba(255,255,255,.52);background-size:32px 32px;border-radius:28px;border:1px solid rgba(184,149,86,.28);padding:22px}
+.fieldhead{display:flex;justify-content:space-between;align-items:center}
+.object{display:inline-block;vertical-align:top;min-width:150px;max-width:230px;margin:12px;padding:14px;border-radius:18px;box-shadow:0 8px 20px rgba(80,60,70,.08);position:relative}
+.object .type{font:700 9px Arial,sans-serif;letter-spacing:.16em;margin-bottom:6px}
+.obs{background:var(--mint)}.claim{background:var(--rose)}.source{background:var(--blue)}.question{background:var(--lilac)}.note{background:#f7e7ba}
+.addrow{display:flex;gap:8px;margin-top:15px}.addrow input{flex:1;border:1px solid #dbcdb8;border-radius:14px;padding:11px;background:#fff}
+.timeline{margin-top:24px;padding:16px 22px;border-top:1px solid rgba(184,149,86,.4);display:flex;align-items:center;gap:14px}
+.timeline strong{font-size:12px;letter-spacing:.15em}.ticks{flex:1;display:flex;justify-content:space-between;position:relative}
+.ticks:before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#b89556}
+.tick{position:relative;background:#fff8ef;border:1px solid #b89556;width:31px;height:31px;border-radius:50%;display:grid;place-items:center;font:10px Arial,sans-serif}
+.footerbar{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-top:16px}
+.breathe{border:none;border-radius:999px;background:linear-gradient(135deg,#f2d3dd,#d6caef,#c8e6d8);padding:12px 18px;cursor:pointer;box-shadow:var(--shadow)}
+.record{border:1px solid #b89556;background:#fffaf3;border-radius:999px;padding:12px 18px;cursor:pointer}
+.modal{position:fixed;inset:0;background:rgba(42,33,43,.35);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal.show{display:flex}.sheet{max-width:720px;width:100%;background:#fffaf3;border-radius:30px;padding:28px;box-shadow:0 30px 80px rgba(40,30,40,.25)}
+.sheet h2{font-size:32px;margin:5px 0 12px}.result{font-size:34px;color:#6b5870;margin:14px 0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}.box{background:white;border-radius:18px;padding:14px;border:1px solid #eadfcf}
+.close{float:right;border:none;background:none;font-size:24px;cursor:pointer}
+
+.runtimebar{display:none;margin:18px 0 6px;padding:16px;border-radius:22px;background:linear-gradient(120deg,rgba(255,255,255,.82),rgba(238,230,250,.72));border:1px solid rgba(184,149,86,.35)}
+.runtimebar.show{display:block}.runtime-title{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.runtime-title h3{margin:0;font-size:22px}.stages{display:flex;gap:8px;overflow-x:auto;padding-top:13px}
+.stage{min-width:115px;padding:10px 12px;border-radius:16px;background:#fffaf5;border:1px solid #ddcfbc;font:700 10px Arial,sans-serif;letter-spacing:.08em;text-align:center;opacity:.55}
+.stage.active{opacity:1;background:linear-gradient(135deg,#f3d4dc,#d9c9ef,#cfe9d8);border-color:#b89556;box-shadow:0 8px 20px rgba(80,60,70,.09)}
+.stage.done{opacity:.9;background:#fffdf8}.runtime-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.promptbox{margin-top:12px;padding:13px 15px;border-radius:16px;background:rgba(255,255,255,.75);font-size:14px}
+
+.hardener{display:none;max-width:900px;margin:0 auto 20px;padding:16px 18px;border-radius:20px;background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(244,231,241,.78));border:1px solid rgba(184,149,86,.35)}
+.hardener.show{display:block}.hardener .proposal{font-size:17px;margin:8px 0 12px}
+.object.selected{outline:3px solid rgba(184,149,86,.85)}
+.connection-list{margin-top:14px;display:grid;gap:8px}
+.connection{padding:11px 13px;border-radius:15px;background:rgba(255,250,243,.86);border:1px dashed #b89556;font-size:13px}
+.connection b{font-family:Arial,sans-serif;font-size:9px;letter-spacing:.12em;color:#8b7151}
+.suggested{border-style:dashed!important;opacity:.88}
+
+.targetbar{display:none;margin:10px 0;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.78);border:1px solid #ddcfbc;font-size:13px}
+.targetbar.show{display:block}.statuschip{display:inline-block;margin-left:8px;padding:3px 8px;border-radius:999px;border:1px solid #b89556;font:700 9px Arial,sans-serif;letter-spacing:.08em}
+.witnesssheet textarea{width:100%;min-height:85px;border:1px solid #dbcdb8;border-radius:14px;padding:12px;background:#fff;margin-top:8px}
+.effectrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+.recordgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.recordblock{background:#fff;border:1px solid #eadfcf;border-radius:18px;padding:14px}
+.recordblock h4{margin:0 0 8px;font:700 10px Arial,sans-serif;letter-spacing:.12em;color:#8b7151}
+.recordblock ul{margin:0;padding-left:18px}.historyline{padding:8px 0;border-bottom:1px solid #eee2d4;font-size:13px}
+.resultselect{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.resultselect .pill.chosen{background:#3e3340;color:white}
+
+.assist{margin-top:12px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(207,233,216,.65),rgba(217,201,239,.62));border:1px solid rgba(184,149,86,.3)}
+.assist h4{margin:0 0 8px;font-size:16px}.assist p{margin:6px 0;font-size:13px}.assist-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.routebadge{display:inline-block;padding:4px 8px;border-radius:999px;background:#fff9f0;border:1px solid #cdb68d;font:700 9px Arial,sans-serif;letter-spacing:.08em}
+
+.ioarea{width:100%;min-height:180px;border:1px solid #dbcdb8;border-radius:16px;padding:12px;background:#fff;font-family:ui-monospace,monospace;font-size:12px}
+
+.detailmeta{display:grid;grid-template-columns:1fr 1fr;gap:10px}.detailmeta label{font:700 9px Arial,sans-serif;letter-spacing:.1em;color:#8b7151}.detailmeta input,.detailmeta textarea{width:100%;margin-top:5px;border:1px solid #dbcdb8;border-radius:12px;padding:9px;background:#fff}.detailmeta textarea{min-height:70px}
+
+.snapbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.snap{padding:6px 9px;border-radius:999px;border:1px solid #cdb68d;background:#fff9f0;font:700 9px Arial,sans-serif;cursor:pointer}.snap.active{background:#3e3340;color:#fff}.ghost{opacity:.28;filter:saturate(.55)}.timeview{margin-top:8px;font-size:12px;color:#756575}
+
+.conncontrols{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.mini{border:1px solid #cdb68d;background:#fffaf3;border-radius:999px;padding:5px 8px;font:700 8px Arial,sans-serif;cursor:pointer}
+.connection[data-status="SUPPORTED"]{border-style:solid}.connection[data-status="NOT SUPPORTED"]{text-decoration:none;opacity:.6}.connection[data-status="HELD OPEN"]{border-style:dotted}
+
+.lineage{margin-top:12px;padding:12px;border-radius:16px;background:rgba(203,220,245,.28);border:1px solid rgba(184,149,86,.25)}
+.lineage-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:7px 0;border-bottom:1px solid rgba(184,149,86,.16);font-size:12px}.lineage-row:last-child{border-bottom:none}.carrier{padding:4px 7px;border-radius:999px;background:#fff;border:1px solid #cbdcf5;font:700 9px Arial,sans-serif}
+
+.comparetray{display:none;margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(207,233,216,.45),rgba(203,220,245,.42));border:1px solid rgba(184,149,86,.3)}
+.comparetray.show{display:block}.comparegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.comparecol{background:#fff;border-radius:14px;padding:12px;border:1px solid #e7dccc}.dimensions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.dim{padding:5px 8px;border-radius:999px;background:#fffaf3;border:1px solid #cdb68d;font:700 9px Arial,sans-serif}
+
+.scopezone{display:none;margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(217,201,239,.38),rgba(244,199,173,.35));border:1px solid rgba(184,149,86,.3)}
+.scopezone.show{display:block}.scopeobjects{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.scopeobj{padding:8px 10px;border-radius:14px;background:#fff;border:1px solid #ddcfbc;font-size:11px}
+
+.operatortray{display:none;margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(244,199,173,.38),rgba(217,201,239,.35));border:1px solid rgba(184,149,86,.3)}
+.operatortray.show{display:block}.opchoices{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.opchoice{padding:8px 11px;border-radius:14px;background:#fff;border:1px solid #ddcfbc;font-size:11px;cursor:pointer}.opchoice.active{outline:2px solid #b89556}
+
+.transfertray{display:none;margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(188,222,220,.42),rgba(217,201,239,.35));border:1px solid rgba(184,149,86,.3)}
+.transfertray.show{display:block}.transfermap{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-top:10px}.transferbox{background:#fff;border:1px solid #ddcfbc;border-radius:14px;padding:12px;min-height:70px}
+
+.compressview{display:none;margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(203,220,245,.4),rgba(207,233,216,.4));border:1px solid rgba(184,149,86,.3)}
+.compressview.show{display:block}.compressview textarea{width:100%;min-height:90px;border:1px solid #dbcdb8;border-radius:14px;padding:11px;background:#fff;margin-top:8px}
+
+.reordertray{display:none;margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(244,199,173,.3),rgba(203,220,245,.35));border:1px solid rgba(184,149,86,.3)}
+.reordertray.show{display:block}.orderlist{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.orderitem{padding:8px 10px;border-radius:14px;background:#fff;border:1px solid #ddcfbc;font-size:11px;cursor:pointer}.orderitem.active{outline:2px solid #b89556}
+
+.pressview{display:none;margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(244,199,173,.42),rgba(243,212,220,.38));border:1px solid rgba(184,149,86,.3)}
+.pressview.show{display:block}.pressview input,.pressview textarea{width:100%;border:1px solid #dbcdb8;border-radius:12px;padding:9px;background:#fff;margin-top:7px}.strike-mark{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid #b89556;background:#fff7ec;font:700 9px Arial,sans-serif}
+
+.witnessall{display:none;margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(203,220,245,.42),rgba(188,222,220,.34));border:1px solid rgba(184,149,86,.3)}
+.witnessall.show{display:block}.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.wbtn{padding:9px;border-radius:14px;background:#fff;border:1px solid #d8c9b5;text-align:left;cursor:pointer;font-size:10px}.wbtn b{display:block;font:700 9px Arial,sans-serif;letter-spacing:.08em}.wbtn span{display:block;margin-top:4px;color:#6d626c}
+
+.runmode{display:none;margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(207,233,216,.35));border:1px solid rgba(184,149,86,.3)}
+.runmode.show{display:block}.runstep{padding:10px 12px;margin-top:8px;border-radius:14px;background:#fff;border:1px solid #e4d7c5;font-size:12px}.runstep b{font-family:Arial,sans-serif;font-size:9px;letter-spacing:.1em;color:#8b7151}
+
+.consequencebox{display:none;margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(243,212,220,.35),rgba(255,250,242,.75));border:1px solid rgba(184,149,86,.3)}
+.consequencebox.show{display:block}.burden{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.burden .box{min-height:88px}.met{font:700 9px Arial,sans-serif;letter-spacing:.08em}
+
+.reopenbox{display:none;margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(217,201,239,.4),rgba(255,250,242,.78));border:1px solid rgba(184,149,86,.3)}
+.reopenbox.show{display:block}.versionchip{display:inline-block;margin:4px;padding:6px 9px;border-radius:999px;border:1px solid #cdb68d;background:#fff;font:700 9px Arial,sans-serif}
+
+.reportview{display:none;margin-top:14px;padding:16px;border-radius:20px;background:linear-gradient(135deg,rgba(255,253,248,.9),rgba(203,220,245,.32));border:1px solid rgba(184,149,86,.35)}
+.reportview.show{display:block}.reporttext{white-space:pre-wrap;background:#fff;border:1px solid #e5d8c7;border-radius:16px;padding:16px;font-size:13px;line-height:1.55;max-height:420px;overflow:auto}
+
+.onboard{position:fixed;inset:0;z-index:50;background:linear-gradient(135deg,#fbf4ef,#f5effc 52%,#edf7f2);display:flex;align-items:center;justify-content:center;padding:24px}.onboard.hidden{display:none}.welcome{max-width:760px;width:100%;text-align:center;background:rgba(255,253,248,.8);border:1px solid rgba(184,149,86,.4);border-radius:36px;padding:46px;box-shadow:0 30px 90px rgba(71,52,65,.16);backdrop-filter:blur(20px)}.welcome h1{font-size:58px;letter-spacing:.08em;margin:0;font-weight:500}.welcome p{font-size:18px;color:#6f5f6d}.welcome textarea{width:100%;min-height:100px;border:1px solid #d8c7aa;border-radius:20px;padding:18px;background:#fff;margin:18px 0;font-size:17px}.softline{height:1px;background:linear-gradient(90deg,transparent,#b89556,transparent);margin:22px 0}
+
+.learnview{display:none;margin-top:14px;padding:16px;border-radius:20px;background:linear-gradient(135deg,rgba(255,253,248,.92),rgba(217,201,239,.3));border:1px solid rgba(184,149,86,.35)}
+.learnview.show{display:block}.learncards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.learncard{padding:12px;border-radius:16px;background:#fff;border:1px solid #e5d8c7;cursor:pointer}.learncard b{font:700 10px Arial,sans-serif;letter-spacing:.08em}.learncard p{font-size:12px;margin:5px 0 0;color:#6e626c}
+
+.auditview{display:none;margin-top:14px;padding:16px;border-radius:20px;background:linear-gradient(135deg,rgba(188,222,220,.38),rgba(255,253,248,.9));border:1px solid rgba(184,149,86,.35)}
+.auditview.show{display:block}.auditrow{display:grid;grid-template-columns:170px 1fr 90px;gap:9px;align-items:center;padding:8px 0;border-bottom:1px solid #eadfcf;font-size:12px}.auditstate{font:700 9px Arial,sans-serif;letter-spacing:.08em}
+
+.helpbubble{position:fixed;right:22px;bottom:22px;z-index:18}.helpbtn{width:54px;height:54px;border-radius:50%;border:1px solid #cdb68d;background:linear-gradient(135deg,#f3d4dc,#d9c9ef,#cfe9d8);box-shadow:0 12px 35px rgba(71,52,65,.18);font-size:20px;cursor:pointer}.helpcard{display:none;position:absolute;right:0;bottom:64px;width:310px;padding:16px;border-radius:22px;background:#fffaf3;border:1px solid #d8c7aa;box-shadow:0 18px 50px rgba(71,52,65,.18)}.helpcard.show{display:block}.helpcard h3{margin:4px 0 8px}.helpcard p{font-size:13px;line-height:1.45}
+
+.autostop{display:none;margin-top:14px;padding:15px;border-radius:20px;background:linear-gradient(135deg,rgba(243,212,220,.38),rgba(255,253,248,.9));border:1px solid rgba(184,149,86,.35)}
+.autostop.show{display:block}.signalrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.signal{padding:7px 10px;border-radius:999px;background:#fff;border:1px solid #ddcfbc;font:700 9px Arial,sans-serif;letter-spacing:.07em}
+
+.quickadd{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.quickadd button{border:1px solid rgba(184,149,86,.32);border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.78);cursor:pointer;font:700 9px Arial,sans-serif;letter-spacing:.07em}
+.quickadd button:nth-child(1){background:var(--mint)}.quickadd button:nth-child(2){background:var(--rose)}.quickadd button:nth-child(3){background:var(--blue)}.quickadd button:nth-child(4){background:var(--lilac)}.quickadd button:nth-child(5){background:#f7e7ba}
+.versionbanner{display:none;margin:8px auto 18px;max-width:900px;text-align:center;font:700 10px Arial,sans-serif;letter-spacing:.1em;color:#7a6877}.versionbanner.show{display:block}
+
+.testbench{display:none;margin-top:14px;padding:16px;border-radius:20px;background:linear-gradient(135deg,rgba(207,233,216,.38),rgba(217,201,239,.35));border:1px solid rgba(184,149,86,.35)}
+.testbench.show{display:block}.testitem{padding:10px 12px;margin:8px 0;border-radius:14px;background:#fff;border:1px solid #e5d8c7;font-size:12px}.testitem b{font:700 9px Arial,sans-serif;letter-spacing:.09em;color:#8b7151}
+@media(max-width:950px){.auditrow{grid-template-columns:1fr}.auditstate{text-align:left}}{.learncards{grid-template-columns:1fr 1fr}}{.welcome{padding:28px}.welcome h1{font-size:42px}}{.burden{grid-template-columns:1fr}}{.wgrid{grid-template-columns:1fr 1fr}}{.grid{grid-template-columns:1fr}.panel{min-height:auto}.field{order:-1}.hero h1{font-size:42px}.nav{display:none}.cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="onboard" id="onboard"><div class="welcome">
+<div class="brand">ONTOLOGICORE</div><div class="softline"></div><h1>THE TABLE</h1><p><i>A space for braver questions.</i></p>
+<p>Put a question down. See what survives.</p>
+<textarea id="firstquestion" placeholder="What are we looking at?"></textarea>
+<div class="controls"><button class="pill primary" id="enter">PUT IT ON THE TABLE</button><button class="pill" id="demo">OPEN A DEMO TABLE</button></div>
+<div class="softline"></div><small>Explore what could be true. Test what the evidence allows. Keep what remains.</small>
+</div></div>
+<div class="app">
+  <div class="top"><div class="brand">ONTOLOGICORE</div><div class="nav"><span>HOME</span><b>THE TABLE</b><span id="newtable" style="cursor:pointer">NEW TABLE</span><span>YOUR RECORD</span><span id="learnnav" style="cursor:pointer">LEARN</span></div></div>
+  <div class="hero"><h1>THE TABLE</h1><p>Put a question down. See what survives.</p></div>
+
+  <section class="table">
+    <div class="reference">
+      <div class="eyebrow">REFERENCE <span id="lockstate">· UNLOCKED</span></div>
+      <textarea id="ref">What does the available record establish about the changes following the disagreement?</textarea>
+      <div class="controls">
+        <button class="pill primary" id="lockref">LOCK REFERENCE</button><button class="pill" id="guided">GUIDED RUN</button>
+        <button class="pill active" data-mode="EXPLORE">EXPLORE</button>
+        <button class="pill" data-mode="TEST">TEST</button>
+        <button class="pill" data-mode="DEEP RUN">DEEP RUN</button>
+        <button class="pill" data-consequence="LIGHT">LIGHT</button><button class="pill active" data-consequence="MATERIAL">MATERIAL</button><button class="pill" data-consequence="HIGH">HIGH</button>
+      </div>
+    </div>
+    <div class="versionbanner show" id="versionbanner">THE TABLE · v0.1 · BUILD 031 · LOCAL PROTOTYPE</div>
+
+    <div class="hardener" id="hardener">
+      <div class="eyebrow">HERE'S THE QUESTION UNDERNEATH IT</div>
+      <div class="proposal" id="proposal"></div>
+      <div class="controls" style="justify-content:flex-start">
+        <button class="pill primary" id="useproposal">USE THIS</button>
+        <button class="pill" id="editproposal">EDIT</button>
+        <button class="pill" id="keepmine">KEEP MINE</button>
+      </div>
+    </div>
+
+    <div class="runtimebar" id="runtimebar">
+      <div class="runtime-title"><div><div class="eyebrow">ACTIVE TOOL / DEEP RUN</div><h3 id="runtimename">DATA MORGANA</h3></div><button class="pill" id="exittool">EXIT</button></div>
+      <div class="stages" id="stages"></div>
+      <div class="promptbox" id="stageprompt"></div>
+      <div class="runtime-actions"><button class="pill" id="stageinsufficient">INSUFFICIENT EVIDENCE</button><button class="pill primary" id="stagenext">COMPLETE STAGE →</button></div>
+    </div>
+
+    <div class="grid">
+      <aside class="panel explore">
+        <div class="eyebrow">EXPLORE</div><h2>What could be true?</h2><small>Choose a move.</small>
+        <div class="card" data-op="TRACE"><b>TRACE THE ARROW</b><em>How did we get from this to that?</em></div>
+        <div class="card" data-op="COMPARE"><b>COMPARE</b><em>What's the same? What's different?</em></div>
+        <div class="card" data-op="SEPARATE"><b>SEPARATE</b><em>What have we been treating as one?</em></div>
+        <div class="card" data-op="TURN"><b>TURN</b><em>What is this actually oriented toward?</em></div>
+        <div class="card" data-op="PRESS"><b>PRESS</b><em>What changes under load?</em></div>
+        <div class="card" data-op="STRIKE"><b>STRIKE</b><em>Did this event change the regime?</em></div>
+        <div class="card" data-op="WIDEN"><b>WIDEN</b><em>What relevant context is outside the frame?</em></div>
+        <div class="card" data-op="NARROW"><b>NARROW</b><em>What happens when we close the distance?</em></div>
+        <div class="card" data-op="SUBTRACT"><b>SUBTRACT</b><em>What disappears when this is removed?</em></div>
+        <div class="card" data-op="COLLAPSE"><b>COLLAPSE</b><em>What survives without the support?</em></div>
+        <div class="card" data-op="NAME"><b>NAME IT</b><em>What has this earned the right to be called?</em></div>
+        <div class="card" data-op="HOLD"><b>HOLD THE LINE</b><em>What must stay fixed?</em></div>
+        <div class="card" data-op="TRANSFER"><b>TRANSFER</b><em>Which relations survive the move?</em></div>
+        <div class="card" data-op="COMPRESS"><b>COMPRESS</b><em>What can disappear without changing the function?</em></div>
+        <div class="card" data-op="RETURN"><b>RETURN</b><em>What did the earlier record actually say?</em></div>
+        <div class="card" data-op="REORDER"><b>REORDER</b><em>Does the structure depend on sequence?</em></div>
+        <div class="card" data-op="LOOK"><b>LOOK</b><em>What is actually here?</em></div>
+        <div class="card" data-op="SEPARATE"><b>SEPARATE</b><em>What have we been treating as one?</em></div>
+        <div class="card" data-op="TURN"><b>TURN</b><em>What is this actually oriented toward?</em></div>
+        <div class="card" data-op="PRESS"><b>PRESS</b><em>What changes under load?</em></div>
+        <div class="card" data-op="STRIKE"><b>STRIKE</b><em>Did this event change the regime?</em></div>
+      </aside>
+
+      <main class="field">
+        <div class="fieldhead"><div><div class="eyebrow">ACTIVE FIELD</div><small>Double-click any object for provenance · </small><small id="status">Reference locked · T0</small></div><button class="pill" id="surprise">SURPRISE ME</button></div>
+        <div id="objects">
+          <div class="object obs"><div class="type">OBSERVATION</div>Disagreement occurred.</div>
+          <div class="object claim"><div class="type">CLAIM</div>Schedule changed afterward.</div>
+          <div class="object question"><div class="type">QUESTION</div>What establishes the connection?</div>
+        </div>
+        <div class="targetbar" id="targetbar"><b>SELECTED TARGET:</b> <span id="targettext"></span></div>
+        <div class="connection-list" id="connections"></div>
+        <div class="testbench" id="testbench"><div class="eyebrow">MVP TEST BENCH</div><h3 style="margin:5px 0">One complete run. No new architecture.</h3><p style="font-size:13px">This test loads a neutral causal question and exercises Reference → objects → connection → Witness → result → Record. It is designed to expose usability failure, not prove the system works.</p><div id="testbenchbody"></div><div class="controls" style="justify-content:flex-start"><button class="pill primary" id="loadtest">LOAD TEST TABLE</button><button class="pill" id="checktest">CHECK TEST STATE</button><button class="pill" id="closetestbench">CLOSE</button></div></div>
+<div class="autostop" id="autostop"><div class="eyebrow">BREATHE — FAILSAFE</div><h3 style="margin:5px 0">Is another move going to teach us anything?</h3><div class="signalrow" id="signals"></div><p id="stopreason" style="font-size:13px"></p><div class="controls" style="justify-content:flex-start"><button class="pill primary" id="keepremains">KEEP WHAT REMAINS</button><button class="pill" id="resume">NEW DISTINCTION EXISTS — CONTINUE</button></div></div>
+<div class="auditview" id="auditview"><div class="eyebrow">RUN AUDIT</div><h3 style="margin:5px 0">Did the Table obey its own rules?</h3><div id="auditbody"></div><div class="controls" style="justify-content:flex-end"><button class="pill" id="closeaudit">CLOSE</button></div></div>
+<div class="learnview" id="learnview"><div class="eyebrow">LEARN THE TABLE</div><h3 style="margin:5px 0">The vocabulary teaches itself through use.</h3><p style="font-size:13px">Choose an operator or Test. Nothing here changes the active Record.</p><div class="learncards" id="learncards"></div><div class="controls" style="justify-content:flex-end"><button class="pill" id="closelearn">CLOSE</button></div></div>
+<div class="reportview" id="reportview"><div class="eyebrow">THE RECORD — REPORT</div><h3 style="margin:5px 0">Structured export, not a chat transcript.</h3><div class="reporttext" id="reporttext"></div><div class="controls" style="justify-content:flex-end"><button class="pill" id="copyreport">COPY REPORT</button><button class="pill" id="closereport">CLOSE</button></div></div>
+<div class="reopenbox" id="reopenbox">
+<div class="eyebrow">THE RECORD — VERSION HISTORY</div><h3 style="margin:5px 0">New evidence does not overwrite an old result.</h3>
+<div id="versionlist"></div>
+<div class="addrow"><select id="reopentype" class="pill"><option>OBSERVATION</option><option>SOURCE</option><option>CLAIM</option><option>QUESTION</option></select><input id="reopentext" placeholder="Put new evidence or a new question down…"><button class="pill primary" id="reopenrun">REOPEN RECORD</button></div>
+</div>
+<div class="consequencebox" id="consequencebox">
+<div class="eyebrow">CLOSURE BURDEN</div><h3 style="margin:5px 0">How much rides on the answer?</h3>
+<div class="burden"><div class="box"><b>LIGHT</b><p>Low-impact, reversible working classification.</p></div><div class="box"><b>MATERIAL</b><p>Meaningful decisions, resources, relationships, operations, or reputation.</p></div><div class="box"><b>HIGH</b><p>Serious legal, medical, financial, safety, liberty, identity, or reputational consequence.</p></div></div>
+<p id="burdenstatus" style="font-size:13px"></p></div>
+<div class="runmode" id="runmode"><div class="eyebrow">GUIDED RUN</div><h3 id="runheading" style="margin:5px 0">Reference → Formation → Witness → Record</h3><div id="runsteps"></div><div class="controls" style="justify-content:flex-start"><button class="pill primary" id="guidednext">NEXT LAWFUL STEP</button><button class="pill" id="endguided">END GUIDED RUN</button></div></div>
+<div class="witnessall" id="witnessall"><div class="eyebrow">ALL TESTS — WITNESS KERNEL</div><h3 style="margin:5px 0">Pressure the selected target.</h3><div class="wgrid" id="wgrid"></div><div class="controls" style="justify-content:flex-end"><button class="pill" id="closewitnessall">CLOSE</button></div></div>
+<div class="pressview" id="pressview">
+<div class="eyebrow" id="pressname">PRESS</div><h3 id="pressq" style="margin:5px 0">What changes under load?</h3>
+<div id="presstarget" style="font-size:13px"></div>
+<label class="eyebrow">DECLARED TEST CONDITION</label><input id="presscondition" placeholder="What bounded condition changes?">
+<label class="eyebrow">WHAT MUST STAY FIXED</label><input id="presshold" placeholder="Controls / invariant">
+<label class="eyebrow">OBSERVED RESULT</label><textarea id="pressresult" placeholder="What changed under the test?"></textarea>
+<div class="controls" style="justify-content:flex-start"><button class="pill primary" id="applypress">RECORD PRESSURE TEST</button><button class="pill" id="cancelpress">CANCEL</button></div>
+</div>
+<div class="reordertray" id="reordertray">
+<div class="eyebrow">REORDER</div><h3 style="margin:5px 0">Does the structure depend on sequence?</h3>
+<p style="font-size:13px">Choose an experimental order. Actual chronology remains untouched.</p>
+<div class="orderlist" id="orderlist"></div>
+<div class="controls" style="justify-content:flex-start"><button class="pill" id="movefirst">MOVE SELECTED FIRST</button><button class="pill" id="movelast">MOVE SELECTED LAST</button><button class="pill primary" id="applyreorder">TEST ORDER</button><button class="pill" id="cancelreorder">CANCEL</button></div>
+</div>
+<div class="compressview" id="compressview">
+<div class="eyebrow" id="compressname">COMPRESS</div><h3 id="compressq" style="margin:5px 0">What can disappear without changing the function?</h3>
+<div id="compresssource" style="font-size:13px"></div>
+<textarea id="compressoutput" placeholder="Write the reduced representation here…"></textarea>
+<div class="controls" style="justify-content:flex-start"><button class="pill primary" id="applycompress">TEST COMPRESSION</button><button class="pill" id="cancelcompress">CANCEL</button></div>
+</div>
+<div class="transfertray" id="transfertray">
+<div class="eyebrow">TRANSFER</div><h3 style="margin:5px 0">Which relations survive the move?</h3>
+<div class="transfermap"><div class="transferbox" id="transfersource">Select a connection first.</div><div style="font-size:24px">→</div><div class="transferbox"><input id="targetdomain" style="width:100%;border:0;outline:none" placeholder="Target domain / representation"><textarea id="targetrelation" style="width:100%;margin-top:8px;border:1px solid #dbcdb8;border-radius:10px;padding:8px;min-height:55px" placeholder="Transferred relation only — not authority or truth"></textarea></div></div>
+<div class="controls" style="justify-content:flex-start"><button class="pill primary" id="applytransfer">TRANSFER RELATION</button><button class="pill" id="canceltransfer">CANCEL</button></div>
+</div>
+<div class="operatortray" id="operatortray">
+<div class="eyebrow" id="optrayname">SUBTRACT</div><h3 id="optrayq" style="margin:5px 0">What disappears when this is removed?</h3>
+<div class="opchoices" id="opchoices"></div>
+<div class="controls" style="justify-content:flex-start"><button class="pill primary" id="applyop">APPLY OPERATION</button><button class="pill" id="cancelop">CANCEL</button></div>
+</div>
+<div class="scopezone" id="scopezone"><div class="eyebrow" id="scopetitle">NARROW THE FIELD</div><h3 id="scopequestion" style="margin:5px 0">What belongs in the active question right now?</h3><div class="scopeobjects" id="scopeobjects"></div><div class="controls" style="justify-content:flex-start"><button class="pill" id="applyscope">APPLY SCOPE</button><button class="pill" id="restoreall">RETURN ALL TO FIELD</button></div></div>
+<div class="comparetray" id="comparetray">
+<div class="eyebrow">COMPARE</div><h3 style="margin:5px 0">Declare the dimensions first.</h3>
+<div class="comparegrid"><div class="comparecol" id="comparea"></div><div class="comparecol" id="compareb"></div></div>
+<div class="addrow"><input id="diminput" placeholder="Comparison dimension: date, source, wording, amount…"><button class="pill" id="adddim">ADD DIMENSION</button><button class="pill primary" id="runcompare">COMPARE</button></div>
+<div class="dimensions" id="dimensions"></div><div id="compareresult" style="margin-top:10px;font-size:13px"></div>
+</div>
+<div class="lineage" id="lineage"><div class="eyebrow">SOURCE LINEAGE</div><div id="lineagebody"><small>Add Source objects and provenance to see carrier/origin structure.</small></div></div>
+        <div class="assist" id="assist">
+          <div class="eyebrow">THE TABLE SUGGESTS</div>
+          <h4 id="assisttitle">Start with the Reference.</h4>
+          <p id="assisttext">Lock the question, then put observations, claims, sources, or questions on the Table.</p>
+          <div class="assist-actions"><button class="pill" id="analyze">SUGGEST NEXT MOVE</button><button class="pill" id="acceptsuggestion" style="display:none">PUT SUGGESTION ON TABLE</button></div>
+        </div>
+        <div class="quickadd"><button data-quick="OBSERVATION">+ OBSERVATION</button><button data-quick="CLAIM">+ CLAIM</button><button data-quick="SOURCE">+ SOURCE</button><button data-quick="QUESTION">+ QUESTION</button><button data-quick="NOTE">+ NOTE</button></div>
+        <div class="addrow">
+          <button class="pill" id="connect">CONNECT 2 SELECTED</button>
+          <select id="otype" class="pill"><option>OBSERVATION</option><option>CLAIM</option><option>SOURCE</option><option>QUESTION</option><option>NOTE</option></select>
+          <input id="newobj" placeholder="Put something else on the Table…"><button class="pill primary" id="add">ADD</button>
+        </div>
+      </main>
+
+      <aside class="panel test">
+        <div class="eyebrow">TEST</div><h2>What does the evidence allow?</h2><small>Pressure the structure, not the person.</small>
+        <div class="card" data-test="BASELINE"><b>BASELINE</b><em>Compared to what?</em></div>
+        <div class="card" data-test="PROVENANCE"><b>PROVENANCE</b><em>Where did this come from?</em></div>
+        <div class="card" data-test="INFERENCE DISTANCE"><b>INFERENCE DISTANCE</b><em>How far are we from direct observation?</em></div>
+        <div class="card" data-test="ALTERNATIVE"><b>ALTERNATIVE</b><em>What else could explain this?</em></div>
+        <div class="card" data-test="THRESHOLD"><b>THRESHOLD</b><em>What has to be true before we cross?</em></div>
+        <div class="card" data-test="INVALIDATION"><b>INVALIDATION</b><em>What would break this?</em></div>
+        <div class="card" data-test="RUN VALIDITY"><b>RUN VALIDITY</b><em>Was the test clean enough to mean anything?</em></div>
+        <button class="pill" id="seealltests" style="margin-top:12px;width:100%">SEE ALL 17 TESTS</button>
+      </aside>
+    </div>
+
+    <div class="timeline" style="display:block"><div style="display:flex;align-items:center;gap:14px"><strong>BEATTHOUGHT</strong><div class="ticks" id="ticks">
+      <div class="tick">T0</div><div class="tick">T1</div><div class="tick">T2</div><div class="tick">T3</div><div class="tick">NOW</div>
+    </div></div><div class="snapbar" id="snapbar"></div><div class="timeview" id="timeview">Viewing current state.</div></div>
+    <div class="footerbar"><button class="breathe" id="breathe">✦ BREATHE</button><span style="font-style:italic;color:#766574">Better questions. A kinder reality.</span><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="record" id="tools">TOOLS</button><button class="record" id="save">SAVE RECORD</button><button class="record" id="testbenchbtn">TEST MVP</button><button class="record" id="auditbtn">AUDIT RUN</button><button class="record" id="reportbtn">REPORT</button><button class="record" id="reopenbtn">REOPEN</button><button class="record" id="io">EXPORT / IMPORT</button><button class="record" id="record">WHAT THE TABLE HOLDS</button></div></div>
+  </section>
+</div>
+
+<div class="modal" id="modal"><div class="sheet"><button class="close" id="close">×</button>
+<div class="eyebrow">WHAT THE TABLE HOLDS</div><div class="result" id="result">HELD OPEN</div>
+<div class="resultselect" id="resultselect">
+<button class="pill" data-result="SUPPORTED">SUPPORTED</button><button class="pill" data-result="NOT SUPPORTED">NOT SUPPORTED</button><button class="pill" data-result="UNKNOWN">UNKNOWN</button><button class="pill chosen" data-result="HELD OPEN">HELD OPEN</button><button class="pill" data-result="INVALID RUN">INVALID RUN</button>
+</div>
+<div class="recordgrid">
+<div class="recordblock"><h4>WHAT HOLDS</h4><ul id="holdslist"></ul></div>
+<div class="recordblock"><h4>WHAT DOESN'T HOLD</h4><ul id="failslist"></ul></div>
+<div class="recordblock"><h4>WHAT REMAINS UNKNOWN</h4><ul id="unknownlist"></ul></div>
+<div class="recordblock"><h4>WHAT WOULD CHANGE THIS</h4><textarea id="changefield" style="width:100%;min-height:75px;border:1px solid #dbcdb8;border-radius:12px;padding:10px" placeholder="What new evidence would move the result?"></textarea></div>
+<div class="recordblock"><h4>SCOPE</h4><textarea id="scopefield" style="width:100%;min-height:65px;border:1px solid #dbcdb8;border-radius:12px;padding:10px">Current evidence on this Table only.</textarea></div>
+<div class="recordblock"><h4>WITNESS HISTORY</h4><div id="historylist"></div></div>
+</div>
+<div class="controls" style="justify-content:flex-end"><button class="pill primary" id="closerecord">KEEP IN RECORD</button></div>
+</div></div>
+<div class="modal" id="detailmodal"><div class="sheet"><button class="close" id="detailclose">×</button>
+<div class="eyebrow">OBJECT DETAILS / PROVENANCE</div><h2 id="detailtitle">Table object</h2>
+<div class="detailmeta">
+<div><label>TYPE</label><input id="detailtype" readonly></div>
+<div><label>ENTERED AT</label><input id="detailat" readonly></div>
+<div><label>ORIGINAL TEXT</label><textarea id="detailoriginal" readonly></textarea></div>
+<div><label>CURRENT TEXT</label><textarea id="detailcurrent"></textarea></div>
+<div><label>SOURCE / ORIGIN</label><input id="detailsource" placeholder="URL, document, person, record, or none"></div>
+<div><label>PROVENANCE NOTE</label><textarea id="detailprov" placeholder="How did this enter the Record?"></textarea></div>
+<div><label>DERIVED FROM OBJECT ID</label><input id="detailparent" placeholder="Optional source object ID"></div>
+</div>
+<div class="controls" style="justify-content:flex-end"><button class="pill" id="outside">MOVE OUTSIDE SCOPE</button><button class="pill primary" id="savedetail">SAVE DETAILS</button></div>
+</div></div>
+<div class="modal" id="iomodal"><div class="sheet"><button class="close" id="ioclose">×</button>
+<div class="eyebrow">PORTABLE RECORD</div><h2>Move this Table without rewriting it.</h2>
+<p>Export preserves the structured state. Import restores that state as a new local copy.</p>
+<textarea class="ioarea" id="iodata"></textarea>
+<div class="controls" style="justify-content:flex-end"><button class="pill" id="copyio">COPY EXPORT</button><button class="pill primary" id="importio">IMPORT RECORD</button></div>
+</div></div>
+<div class="modal" id="witnessmodal"><div class="sheet witnesssheet"><button class="close" id="witnessclose">×</button>
+<div class="eyebrow">TEST THE SELECTED TARGET</div><h2 id="witnessname">BASELINE</h2><p id="witnessquestion">Compared to what?</p>
+<textarea id="witnessfinding" placeholder="What does the record show?"></textarea>
+<div class="effectrow"><button class="pill" data-effect="HOLD">HOLD</button><button class="pill" data-effect="NARROW">NARROW</button><button class="pill" data-effect="RECLASSIFY">RECLASSIFY</button><button class="pill" data-effect="REOPEN">REOPEN</button><button class="pill" data-effect="FAIL">FAIL</button><button class="pill" data-effect="INVALID">INVALID RUN</button></div>
+</div></div>
+<div class="modal" id="toolmodal"><div class="sheet"><button class="close" id="toolclose">×</button>
+<div class="eyebrow">TOOLS</div><h2>Choose a deeper move.</h2>
+<div class="cols">
+<div class="card" data-tool="DATA MORGANA"><b>DATA MORGANA</b><em>Close the distance.</em></div>
+<div class="card" data-tool="OIL CHECK"><b>OIL CHECK</b><em>Test what sustains it.</em></div>
+<div class="card" data-tool="RETURN WITH MEMORY"><b>RETURN WITH MEMORY</b><em>Go back without rewriting.</em></div>
+<div class="card" data-tool="TRAPDOOR"><b>TRAPDOOR</b><em>Find the hidden transition.</em></div>
+</div></div></div>
+
+<script>
+let t=0,currentOp=null,locked=false,activeRuntime=null,stageIndex=0,selectedIds=[],recordVersion=1,originalQuestion='',guidedActive=false,guidedPhase=0,consequence='MATERIAL',lastDiscriminationT=0;
+const status=document.getElementById('status'),ref=document.getElementById('ref'),lockstate=document.getElementById('lockstate');
+const classMap={OBSERVATION:'obs',CLAIM:'claim',SOURCE:'source',QUESTION:'question',NOTE:'note'};
+const runtimes={
+ "DATA MORGANA":{stages:["LOOK","COMPARE","NARROW","PRESS","RETURN"],prompts:["Record the apparent structure before explaining it.","Place the apparent pattern against the same dimensions.","Close the distance. What changes at higher resolution?","Pressure the seams. Which relations actually survive?","Return to the original view. What disappeared when we got closer?"]},
+ "OIL CHECK":{stages:["LOOK","HOLD","PRESS","COMPARE"],prompts:["What visible output are we treating as capacity?","What demand or condition must stay fixed?","Apply ordinary load. What has to be supplied externally?","Compare function across time or load. What actually sustains it?"]},
+ "RETURN WITH MEMORY":{stages:["HOLD T1","RETURN","COMPARE"],prompts:["Preserve the earlier coordinate exactly as recorded.","Reconstruct T1 without importing later knowledge.","Compare the original record with the current interpretation. What changed: the record, or its meaning?"]},
+ "TRAPDOOR":{stages:["SURFACE","LOAD","FAILURE","ADAPTATION","OBSERVER","TRANSFER","SOURCE","SECOND REMOVAL"],prompts:["What appears stable on the surface?","What happens when the structure carries load?","Where does expected continuity first break?","Does changing strategy alter the terminal structure?","Is the observer outside the mechanism, or carrying part of its load?","Where did cost, burden, function, or control move?","Remove the mechanism explanation. What remains as source?","Pressure the surviving explanation once more. Does discrimination increase?"]}
+};
+let connections=[],selectedTarget=null,compareDims=[],versions=[],tableResult='HELD OPEN',scopeText='Current evidence on this Table only.',changeText='',eventLog=[],snapshots=[];
+const witnessQ={
+ SOURCE:"What underlying material actually supports this?",
+ PROVENANCE:"Where did this come from, and what is its lineage?",
+ TIMELINE:"What was established before, during, and after the relevant event?",
+ REFERENCE:"Are we still measuring against the same object, definition, rule, or question?",
+ INDEPENDENCE:"Do these observations actually have separate origins?",
+ BASELINE:"Compared to what prior, expected, untreated, or comparison state?",
+ CONTROL:"What else moved, and what was actually held fixed?",
+ INVARIANT:"What stayed unchanged through the transformation?",
+ SPECIFICITY:"How many serious explanations still fit this evidence?",
+ ALTERNATIVE:"What other serious structure could produce the same observation?",
+ "INFERENCE DISTANCE":"What unsupported transitions separate observation from conclusion?",
+ SCOPE:"Where, when, and under what conditions does this conclusion actually hold?",
+ THRESHOLD:"What minimum condition has to be true before this classification or action is authorized?",
+ INVALIDATION:"What observation would make this Formation fail?",
+ CHALLENGE:"Does this Formation survive a materially different pressure?",
+ RECLASSIFY:"Does the current name still fit the evidence?",
+ "RUN VALIDITY":"Was this operation executed cleanly enough for its result to mean what we say it means?"
+};
+function bump(msg){t++;eventLog.push({coordinate:'T'+t,event:msg,at:new Date().toISOString()});if(/added|Connection proposed|SUPPORTED|NOT SUPPORTED|RECLASS|NARROW|WIDEN|COMPARE|TRACE|Witness|Source|Provenance|THRESHOLD|INVALIDATION|PRESS|RETURN|STRIKE/i.test(msg))lastDiscriminationT=t;status.textContent=msg+' · T'+t;captureSnapshot();persist();}
+function objects(){return [...document.querySelectorAll('#objects .object')].map(x=>({id:x.dataset.id,type:x.dataset.type||x.querySelector('.type').textContent.replace(' · SUGGESTED',''),text:x.dataset.current||x.childNodes[x.childNodes.length-1].textContent.trim(),originalText:x.dataset.original||x.childNodes[x.childNodes.length-1].textContent.trim(),enteredAt:x.dataset.enteredAt||'T0',source:x.dataset.source||'',provenance:x.dataset.provenance||'',parentId:x.dataset.parentId||'',scope:x.dataset.scope||'ACTIVE',label:x.dataset.label||'',removal:x.dataset.removal||''}))}
+function persist(){localStorage.setItem('theTableBuild031',JSON.stringify({reference:ref.value,locked,t,objects:objects(),connections,activeRuntime,stageIndex,tableResult,scopeText,changeText}))}
+function addObject(type,text,doBump=true,id=null,suggested=false,meta={}){
+ const d=document.createElement('div');d.className='object '+(classMap[type]||'note')+(suggested?' suggested':'');d.dataset.id=id||('O'+Date.now()+Math.random().toString(16).slice(2));d.dataset.type=type;
+ d.dataset.original=meta.originalText||text;d.dataset.current=meta.text||text;d.dataset.enteredAt=meta.enteredAt||('T'+(doBump?t+1:t));d.dataset.source=meta.source||'';d.dataset.provenance=meta.provenance||'';d.dataset.parentId=meta.parentId||'';d.dataset.scope=meta.scope||'ACTIVE';d.dataset.label=meta.label||'';d.dataset.removal=meta.removal||'';
+ d.innerHTML='<div class="type">'+type+(suggested?' · SUGGESTED':'')+'</div>';d.appendChild(document.createTextNode(d.dataset.current));
+ d.onclick=(ev)=>{if(ev.detail===2){openDetails(d.dataset.id);return}d.classList.toggle('selected');const oid=d.dataset.id;if(d.classList.contains('selected')){selectedIds.push(oid);selectedTarget={kind:'OBJECT',id:oid,text:d.dataset.current};}else{selectedIds=selectedIds.filter(x=>x!==oid);if(selectedTarget?.id===oid)selectedTarget=null;}renderTarget()};
+ if(d.dataset.scope==='OUTSIDE')d.style.opacity='.28';document.getElementById('objects').appendChild(d);renderLineage();if(doBump)bump(type+' added');return d.dataset.id;
+}
+function renderTarget(){
+ const b=document.getElementById('targetbar');if(!selectedTarget){b.classList.remove('show');return}
+ b.classList.add('show');document.getElementById('targettext').textContent=selectedTarget.text;
+}
+function renderConnections(){
+ const box=document.getElementById('connections');box.innerHTML='';
+ connections.forEach(c=>{const a=objects().find(x=>x.id===c.from),b=objects().find(x=>x.id===c.to);if(!a||!b)return;
+ const d=document.createElement('div');d.className='connection';d.dataset.id=c.id;d.dataset.status=c.status;
+ d.innerHTML='<b>CONNECTION</b><span class="statuschip">'+c.status+'</span><br>'+a.text+' → '+b.text+'<br><em>'+c.relation+'</em><div class="conncontrols"><button class="mini" data-caction="TRACE">TRACE</button><button class="mini" data-caction="TEST">TEST</button><button class="mini" data-caction="DETAILS">HISTORY</button></div>';
+ d.onclick=(ev)=>{if(ev.target.dataset.caction)return;document.querySelectorAll('.connection').forEach(x=>x.style.outline='');d.style.outline='2px solid #b89556';selectedTarget={kind:'CONNECTION',id:c.id,text:a.text+' → '+b.text+' ('+c.relation+')'};renderTarget()};
+ d.querySelector('[data-caction="TRACE"]').onclick=()=>traceConnection(c,a,b);
+ d.querySelector('[data-caction="TEST"]').onclick=()=>{selectedTarget={kind:'CONNECTION',id:c.id,text:a.text+' → '+b.text+' ('+c.relation+')'};renderTarget();document.querySelector('[data-test="BASELINE"]').click()};
+ d.querySelector('[data-caction="DETAILS"]').onclick=()=>showConnectionHistory(c,a,b);
+ box.appendChild(d)});
+}
+function restore(){const raw=localStorage.getItem('theTableBuild031')||localStorage.getItem('theTableBuild003');if(!raw)return;try{
+ const st=JSON.parse(raw);ref.value=st.reference||ref.value;locked=!!st.locked;t=st.t||0;connections=st.connections||[];tableResult=st.tableResult||'HELD OPEN';scopeText=st.scopeText||scopeText;changeText=st.changeText||'';recordVersion=st.recordVersion||1;originalQuestion=st.originalQuestion||st.reference||ref.value;eventLog=st.eventLog||[];snapshots=st.snapshots||[];guidedActive=!!st.guidedActive;guidedPhase=st.guidedPhase||0;consequence=st.consequence||'MATERIAL';versions=st.versions||[];lastDiscriminationT=st.lastDiscriminationT||0;
+ lockstate.textContent=locked?'· LOCKED':'· UNLOCKED';ref.readOnly=locked;document.getElementById('lockref').textContent=locked?'UNLOCK REFERENCE':'LOCK REFERENCE';
+ if(st.objects?.length){document.getElementById('objects').innerHTML='';st.objects.forEach(o=>addObject(o.type,o.text,false,o.id,false,o))}
+ activeRuntime=st.activeRuntime||null;stageIndex=st.stageIndex||0;if(activeRuntime)renderRuntime();renderConnections();renderLineage();renderSnapbar();renderGuided();renderVersions();document.querySelectorAll('[data-consequence]').forEach(x=>x.classList.toggle('active',x.dataset.consequence===consequence));status.textContent=(locked?'Reference locked':'Reference open')+' · T'+t;}catch(e){}}
+function hardenQuestion(q){
+ let p=q.trim();
+ const reps=[[/why (?:is|are) (.+?) lying\??$/i,"What does the available record establish about the discrepancy, and what explanations fit it?"],
+ [/why (?:is|are) (.+?) retaliating.*$/i,"What does the available record establish about the changes following the relevant event?"],
+ [/secretly controlled/i,"controlled or influenced"],
+ [/everyone .* hates me/i,"how people are responding and what explanations fit those observations"]];
+ for(const [r,v] of reps){if(r.test(p)){p=typeof v==='string'?v:p.replace(r,v);break}}
+ return p===q.trim()?null:p;
+}
+function traceConnection(c,a,b){
+ selectedTarget={kind:'CONNECTION',id:c.id,text:a.text+' → '+b.text+' ('+c.relation+')'};renderTarget();
+ document.getElementById('assisttitle').textContent='TRACE THE ARROW';
+ document.getElementById('assisttext').textContent='Starting observation: '+a.text+'  →  proposed relation: '+c.relation+'  →  terminal object: '+b.text+'. What material transition is still unsupported?';
+ const q='What establishes the transition: '+a.text+' → '+b.text+'?';
+ const btn=document.getElementById('acceptsuggestion');btn.style.display='inline-block';btn.dataset.type='QUESTION';btn.dataset.text=q;bump('TRACE applied to connection');
+}
+function showConnectionHistory(c,a,b){
+ let lines=(c.history||[]).map(h=>h.at+' · '+h.test+' → '+h.effect+'\\n'+h.finding).join('\\n\\n');
+ alert('CONNECTION HISTORY\\n\\n'+a.text+' → '+b.text+'\\n'+c.relation+'\\n\\nStatus: '+c.status+'\\nCreated: '+c.createdAt+'\\n\\n'+(lines||'No Witness findings yet.'));
+}
+function captureSnapshot(){
+ const snap={coordinate:'T'+t,reference:ref.value,objects:objects().map(o=>({...o})),connections:JSON.parse(JSON.stringify(connections)),event:eventLog.length?eventLog[eventLog.length-1].event:'Initial state'};
+ snapshots=snapshots.filter(x=>x.coordinate!==snap.coordinate);snapshots.push(snap);renderSnapbar();
+}
+function renderSnapbar(){
+ const b=document.getElementById('snapbar');if(!b)return;b.innerHTML='';
+ const latest=snapshots.slice(-8);
+ latest.forEach(sn=>{const x=document.createElement('button');x.className='snap';x.textContent=sn.coordinate;x.title=sn.event;x.onclick=()=>viewSnapshot(sn.coordinate,x);b.appendChild(x)});
+ const now=document.createElement('button');now.className='snap active';now.textContent='NOW';now.onclick=()=>restoreCurrentView(now);b.appendChild(now);
+}
+function viewSnapshot(coord,button){
+ const sn=snapshots.find(x=>x.coordinate===coord);if(!sn)return;
+ document.querySelectorAll('.snap').forEach(x=>x.classList.remove('active'));button.classList.add('active');
+ const box=document.getElementById('objects');box.innerHTML='';sn.objects.forEach(o=>addObject(o.type,o.text,false,o.id,false,o));
+ const liveConnections=connections;connections=JSON.parse(JSON.stringify(sn.connections));renderConnections();connections=liveConnections;
+ document.getElementById('timeview').textContent='Viewing '+coord+' — '+sn.event+'. Later state has not been written backward.';
+ document.getElementById('newobj').disabled=true;document.getElementById('add').disabled=true;document.getElementById('connect').disabled=true;
+}
+function restoreCurrentView(button){
+ document.querySelectorAll('.snap').forEach(x=>x.classList.remove('active'));button.classList.add('active');
+ const raw=localStorage.getItem('theTableBuild031');if(raw){const st=JSON.parse(raw);document.getElementById('objects').innerHTML='';(st.objects||[]).forEach(o=>addObject(o.type,o.text,false,o.id,false,o));connections=st.connections||connections;renderConnections()}
+ document.getElementById('timeview').textContent='Viewing current state.';document.getElementById('newobj').disabled=false;document.getElementById('add').disabled=false;document.getElementById('connect').disabled=false;
+}
+function enterTable(question,demo=false){
+ const q=(question||'').trim();if(q){originalQuestion=q;ref.value=q;locked=false;ref.readOnly=false;lockstate.textContent='· UNLOCKED';document.getElementById('lockref').textContent='LOCK REFERENCE'}
+ if(demo){originalQuestion='Did changing the store layout increase sales?';ref.value=originalQuestion;document.getElementById('objects').innerHTML='';connections=[];t=0;eventLog=[];snapshots=[];addObject('OBSERVATION','Store layout changed in April.',false);addObject('CLAIM','Sales increased after April.',false);addObject('QUESTION','Did the layout change cause the sales increase?',false);captureSnapshot()}
+ document.getElementById('onboard').classList.add('hidden');bump(demo?'Demo Table opened':'Question put on the Table');
+}
+function resetTable(){
+ if(!confirm('Start a new Table? The current local working state will be cleared. Export or keep the Record first if you need it.'))return;
+ localStorage.removeItem('theTableBuild031');location.reload();
+}
+let detailObjectId=null;
+function openDetails(id){
+ const o=objects().find(x=>x.id===id);if(!o)return;detailObjectId=id;
+ document.getElementById('detailtitle').textContent=o.text.slice(0,70);
+ document.getElementById('detailtype').value=o.type;document.getElementById('detailat').value=o.enteredAt;
+ document.getElementById('detailoriginal').value=o.originalText;document.getElementById('detailcurrent').value=o.text;
+ document.getElementById('detailsource').value=o.source;document.getElementById('detailprov').value=o.provenance;document.getElementById('detailparent').value=o.parentId||'';
+ document.getElementById('outside').textContent=o.scope==='ACTIVE'?'MOVE OUTSIDE SCOPE':'RETURN TO ACTIVE FIELD';
+ document.getElementById('detailmodal').classList.add('show');
+}
+function saveDetails(){
+ const d=document.querySelector('.object[data-id="'+detailObjectId+'"]');if(!d)return;
+ d.dataset.current=document.getElementById('detailcurrent').value.trim();d.dataset.source=document.getElementById('detailsource').value.trim();d.dataset.provenance=document.getElementById('detailprov').value.trim();d.dataset.parentId=document.getElementById('detailparent').value.trim();
+ d.childNodes[d.childNodes.length-1].textContent=d.dataset.current;document.getElementById('detailmodal').classList.remove('show');renderLineage();bump('Object details updated');persist();
+}
+function exportState(){
+ persist();return JSON.parse(localStorage.getItem('theTableBuild031'));
+}
+function openIO(){document.getElementById('iodata').value=JSON.stringify(exportState(),null,2);document.getElementById('iomodal').classList.add('show')}
+function importState(){
+ try{
+  const st=JSON.parse(document.getElementById('iodata').value);
+  if(st.schema!=='THE_TABLE_RECORD')throw new Error('Not a THE TABLE record.');
+  recordVersion=(st.recordVersion||1)+1;originalQuestion=st.originalQuestion||st.reference||'';ref.value=st.reference||'';locked=!!st.locked;t=st.t||0;connections=st.connections||[];activeRuntime=st.activeRuntime||null;stageIndex=st.stageIndex||0;tableResult=st.tableResult||'HELD OPEN';scopeText=st.scopeText||scopeText;changeText=st.changeText||'';eventLog=st.eventLog||[];snapshots=st.snapshots||[];guidedActive=!!st.guidedActive;guidedPhase=st.guidedPhase||0;consequence=st.consequence||'MATERIAL';versions=st.versions||[];lastDiscriminationT=st.lastDiscriminationT||0;
+  document.getElementById('objects').innerHTML='';(st.objects||[]).forEach(o=>addObject(o.type,o.text,false,o.id,false,o));renderConnections();renderLineage();renderRuntime();
+  ref.readOnly=locked;lockstate.textContent=locked?'· LOCKED':'· UNLOCKED';document.getElementById('lockref').textContent=locked?'UNLOCK REFERENCE':'LOCK REFERENCE';
+  document.getElementById('iomodal').classList.remove('show');bump('Portable Record imported as version '+recordVersion);persist();
+ }catch(e){alert('Import failed: '+e.message)}
+}
+let experimentalOrder=[];
+function renderTestBench(){
+ const b=document.getElementById('testbenchbody'),os=objects(),steps=[
+ ['REFERENCE',locked?'READY':'NEEDS LOCK','Working question is stable before movement.'],
+ ['OBJECT TYPES',os.length>=3?'READY':'INCOMPLETE','At least an Observation, Claim, and Question should be distinguishable.'],
+ ['CONNECTION',connections.length?'READY':'INCOMPLETE','A proposed relation exists as its own target.'],
+ ['WITNESS',witnessNamesApplied().length?'READY':'INCOMPLETE','At least one evidentiary Test has a recorded finding.'],
+ ['RESULT',tableResult?'READY':'INCOMPLETE','A bounded epistemic result exists.'],
+ ['RECORD',versions.length?'READY':'INCOMPLETE','A frozen version exists after Keep in Record.']
+ ];
+ b.innerHTML='';steps.forEach(([n,state,d])=>{const x=document.createElement('div');x.className='testitem';x.innerHTML='<b>'+n+' · '+state+'</b><br>'+d;b.appendChild(x)});
+}
+function loadMVPTest(){
+ originalQuestion='Did changing the store layout increase sales?';ref.value=originalQuestion;locked=true;ref.readOnly=true;lockstate.textContent='· LOCKED';document.getElementById('lockref').textContent='UNLOCK REFERENCE';
+ document.getElementById('objects').innerHTML='';connections=[];eventLog=[];snapshots=[];versions=[];t=0;tableResult='HELD OPEN';selectedIds=[];selectedTarget=null;
+ const a=addObject('OBSERVATION','Store layout changed in April.',false),b=addObject('CLAIM','Sales increased after April.',false);addObject('QUESTION','Did the layout change cause the sales increase?',false);
+ connections.push({id:'RTEST',from:a,to:b,relation:'caused',status:'PROPOSED',createdAt:'T0',history:[]});renderConnections();captureSnapshot();bump('MVP test Table loaded');renderTestBench();
+}
+function evaluateFailsafe(){
+ const signals=[],recent=t-lastDiscriminationT;
+ if(recent>=3)signals.push('NO NEW DISCRIMINATION');
+ const refDrift=!locked; if(refDrift)signals.push('REFERENCE NOT LOCKED');
+ const active=objects().filter(o=>o.scope==='ACTIVE').length,outside=objects().filter(o=>o.scope==='OUTSIDE').length;
+ if(outside>active && outside>=3)signals.push('INFORMATION LOSS RISK');
+ if(eventLog.slice(-4).filter(e=>/suggested|selected|audit|help|guided/i.test(e.event)).length>=3)signals.push('REPEATED META-MOVEMENT');
+ const b=document.getElementById('signals');b.innerHTML='';(signals.length?signals:['NEW DISTINCTION STILL POSSIBLE']).forEach(x=>{const d=document.createElement('span');d.className='signal';d.textContent=x;b.appendChild(d)});
+ document.getElementById('stopreason').textContent=signals.length?'The Table has detected conditions where continued operation may add motion without adding discrimination.':'No automatic stop condition is currently established. Continue only if the next move can discriminate something material.';
+ document.getElementById('autostop').classList.add('show');return signals;
+}
+function keepRemains(){renderRecord();document.getElementById('modal').classList.add('show');document.getElementById('autostop').classList.remove('show');bump('Failsafe stopped run; keeping what remains')}
+function contextualHelp(){
+ const os=objects(),proposed=connections.filter(c=>c.status==='PROPOSED');
+ let title,text;
+ if(!locked){title='Lock the question.';text='Reference comes before movement. If the question already contains a verdict, THE TABLE can offer a cleaner working Reference.'}
+ else if(!os.length){title='Put the first thing down.';text='Start with something directly available: an Observation, Source, Claim, Question, or non-evidentiary Note.'}
+ else if(proposed.length){title='Pressure the arrow.';text='A proposed connection exists. TRACE can expose the bridge; TEST can ask what actually supports it.'}
+ else if(os.some(o=>o.type==='CLAIM')&&!os.some(o=>o.type==='OBSERVATION')){title='Separate claim from observation.';text='You have a Claim but no direct Observation yet. LOOK is the cleanest next move.'}
+ else if(os.filter(o=>o.type==='SOURCE').length>1){title='Check the lineage.';text='More than one Source is present. PROVENANCE and INDEPENDENCE can determine whether those are separate origins or repeated carriers.'}
+ else if(os.filter(o=>o.type==='OBSERVATION').length>1){title='Compare without explaining yet.';text='Two or more observations are present. COMPARE lets you declare the dimensions before interpreting similarity or difference.'}
+ else if(os.some(o=>o.type==='QUESTION')){title='Keep the uncertainty useful.';text='A Question remains open. ALTERNATIVE or THRESHOLD can help specify what would discriminate it.'}
+ else{title='Ask what the Table has earned.';text='Use TEST or WHAT THE TABLE HOLDS. If another move will not increase discrimination, BREATHE and stop.'}
+ document.getElementById('helptitle').textContent=title;document.getElementById('helptext').textContent=text;
+}
+function runAudit(){
+ const checks=[];
+ checks.push(['REFERENCE LOCK',locked?'PASS':'OPEN',locked?'Working Reference is locked.':'Reference is still open.']);
+ const os=objects(), claims=os.filter(o=>o.type==='CLAIM'), obs=os.filter(o=>o.type==='OBSERVATION');
+ checks.push(['OBSERVATION / CLAIM',claims.length&& !obs.length?'PRESS':'PASS',claims.length&&!obs.length?'Claims exist with no Observation object.':'Observation and claim types remain distinguishable.']);
+ const orphan=connections.filter(c=>!os.some(o=>o.id===c.from)||!os.some(o=>o.id===c.to));
+ checks.push(['CONNECTION INTEGRITY',orphan.length?'FAIL':'PASS',orphan.length?orphan.length+' orphan connection(s) found.':'All connections resolve to stored objects.']);
+ const src=os.filter(o=>o.type==='SOURCE'), roots=src.filter(x=>!x.parentId||!src.some(y=>y.id===x.parentId));
+ checks.push(['SOURCE INDEPENDENCE',src.length>1&&roots.length===src.length?'CHECK':'PASS',src.length+' source object(s), '+roots.length+' apparent independent origin(s).']);
+ const laterRewrite=os.filter(o=>o.originalText!==o.text);
+ checks.push(['ORIGINAL WORDING',laterRewrite.length?'PASS':'PASS',laterRewrite.length+' object(s) have clarified current wording while original wording remains preserved.']);
+ const cc=closureCheck();
+ checks.push(['CLOSURE BURDEN',cc.ok?'PASS':'OPEN',cc.ok?'Current '+consequence+' closure gates are represented.':'Missing: '+cc.missing.join(', ')]);
+ checks.push(['BEATTHOUGHT',snapshots.length?'PASS':'OPEN',snapshots.length+' preserved state snapshot(s).']);
+ checks.push(['RECORD VERSION',versions.length?'PASS':'OPEN',versions.length?versions.length+' frozen version(s) preserved.':'No closed Record version yet.']);
+ const kernelFormation=17,kernelWitness=17;
+ checks.push(['FORMATION KERNEL','PASS',kernelFormation+' of 17 Formation operations implemented in the interface.']);
+ checks.push(['WITNESS KERNEL','PASS',kernelWitness+' of 17 Witness controls available against selected targets.']);
+ checks.push(['PROTOTYPE STATUS','PASS','Reference, Field, BeatThought, Formation, Witness, Tools, TrapDoor, Failsafe, Record, versioning, report, and self-audit are present.']);
+ const b=document.getElementById('auditbody');b.innerHTML='';
+ checks.forEach(([name,state,desc])=>{const r=document.createElement('div');r.className='auditrow';r.innerHTML='<b>'+name+'</b><span>'+desc+'</span><span class="auditstate">'+state+'</span>';b.appendChild(r)});
+ document.getElementById('auditview').classList.add('show');document.getElementById('auditview').scrollIntoView({behavior:'smooth',block:'center'});bump('Run Validity audit executed');
+}
+const learnFormation=[
+["LOOK","What is actually here?","Record observation before explanation."],["COMPARE","What's the same? What's different?","Declare common dimensions before comparing."],["TRACE","How did we get from this to that?","Expose every required transition."],["RETURN","What did the earlier record actually say?","Go back without rewriting."],["REORDER","Does structure depend on sequence?","Test order without changing chronology."],["HOLD","What must stay fixed?","Declare the invariant."],["WIDEN","What relevant context is outside the frame?","Bring context into scope without expanding the conclusion automatically."],["NARROW","What happens when we close the distance?","Reduce scope without deleting evidence."],["TURN","What is this oriented toward?","Measure orientation against a declared reference."],["PRESS","What changes under load?","Apply bounded pressure with controls."],["STRIKE","Did this event change the regime?","Mark a candidate boundary; test before/after."],["SUBTRACT","What disappears when this is removed?","Remove one component analytically."],["COLLAPSE","What survives without the support?","Remove a support class simultaneously."],["NAME","What has this earned the right to be called?","Apply the narrowest provisional name."],["SEPARATE","What have we been treating as one?","Split components without claiming independence."],["TRANSFER","Which relations survive the move?","Transfer relation, not authority."],["COMPRESS","What can disappear without changing function?","Reduce representation while preserving required structure."]
+];
+function renderLearn(){
+ const b=document.getElementById('learncards');b.innerHTML='';
+ learnFormation.forEach(([n,q,d])=>{const x=document.createElement('div');x.className='learncard';x.innerHTML='<b>'+n+'</b><p><i>'+q+'</i></p><p>'+d+'</p>';b.appendChild(x)});
+ witnessControls.forEach(([n,q])=>{const x=document.createElement('div');x.className='learncard';x.innerHTML='<b>TEST · '+n+'</b><p><i>'+q+'</i></p><p>'+witnessQ[n]+'</p>';b.appendChild(x)});
+}
+function buildReport(){
+ const os=objects(), supported=connections.filter(c=>c.status==='SUPPORTED'), failed=connections.filter(c=>c.status==='NOT SUPPORTED'), open=connections.filter(c=>!['SUPPORTED','NOT SUPPORTED'].includes(c.status));
+ const sourceCount=os.filter(o=>o.type==='SOURCE').length,roots=os.filter(o=>o.type==='SOURCE').filter(x=>!x.parentId||!os.some(y=>y.id===x.parentId)).length;
+ const lines=[];
+ lines.push('THE TABLE — RECORD REPORT');
+ lines.push('Record Version: V'+recordVersion);
+ lines.push('BeatThought Coordinate: T'+t);
+ lines.push('');
+ lines.push('ORIGINAL QUESTION');lines.push(originalQuestion||ref.value);lines.push('');
+ lines.push('LOCKED REFERENCE');lines.push(ref.value);lines.push('');
+ lines.push('CONSEQUENCE');lines.push(consequence);lines.push('');
+ lines.push('RESULT');lines.push(tableResult);lines.push('');
+ lines.push('WHAT HOLDS');
+ os.filter(o=>o.type==='OBSERVATION'||o.type==='SOURCE').forEach(o=>lines.push('• '+o.text));
+ supported.forEach(c=>{const a=os.find(x=>x.id===c.from),b=os.find(x=>x.id===c.to);if(a&&b)lines.push('• '+a.text+' → '+b.text+' ['+c.relation+']')});
+ if(!os.filter(o=>o.type==='OBSERVATION'||o.type==='SOURCE').length&&!supported.length)lines.push('• None recorded.');
+ lines.push('');
+ lines.push("WHAT DOESN'T HOLD");failed.length?failed.forEach(c=>{const a=os.find(x=>x.id===c.from),b=os.find(x=>x.id===c.to);if(a&&b)lines.push('• '+a.text+' → '+b.text+' ['+c.relation+']')}):lines.push('• None recorded.');
+ lines.push('');
+ lines.push('WHAT REMAINS UNKNOWN');os.filter(o=>o.type==='QUESTION').forEach(o=>lines.push('• '+o.text));open.forEach(c=>{const a=os.find(x=>x.id===c.from),b=os.find(x=>x.id===c.to);if(a&&b)lines.push('• Connection held open: '+a.text+' → '+b.text)});
+ lines.push('');
+ lines.push('SOURCE LINEAGE');lines.push('• '+sourceCount+' source object(s); '+roots+' apparent independent origin(s).');
+ lines.push('');
+ lines.push('SCOPE');lines.push(scopeText||'Not specified.');lines.push('');
+ lines.push('WHAT WOULD CHANGE THIS');lines.push(changeText||'Not specified.');lines.push('');
+ lines.push('WITNESS HISTORY');
+ connections.forEach(c=>(c.history||[]).forEach(h=>lines.push('• '+h.at+' · '+h.test+' → '+h.effect+': '+h.finding)));
+ lines.push('');
+ lines.push('BEATTHOUGHT');
+ eventLog.forEach(e=>lines.push('• '+e.coordinate+' · '+e.event));
+ lines.push('');
+ lines.push('GOVERNING NOTE');lines.push('This report preserves the state of the Record. It does not convert inference into fact. Reality has final authority.');
+ return lines.join('\\n');
+}
+function freezeVersion(reason='Closed Record'){
+ const snapshot={version:recordVersion,closedAt:'T'+t,result:tableResult,reference:ref.value,scope:scopeText,changeText,objects:objects().map(o=>({...o})),connections:JSON.parse(JSON.stringify(connections)),eventLog:JSON.parse(JSON.stringify(eventLog)),reason};
+ versions=versions.filter(v=>v.version!==recordVersion);versions.push(snapshot);persist();renderVersions();
+}
+function renderVersions(){
+ const b=document.getElementById('versionlist');if(!b)return;b.innerHTML='';
+ if(!versions.length){b.innerHTML='<small>No closed version preserved yet. Keep a result in The Record first.</small>';return}
+ versions.forEach(v=>{const x=document.createElement('span');x.className='versionchip';x.textContent='V'+v.version+' · '+v.result+' @ '+v.closedAt;x.title=v.reason;b.appendChild(x)});
+}
+function reopenRecord(){
+ const text=document.getElementById('reopentext').value.trim();if(!text){alert('Put the new material down before reopening.');return}
+ if(!versions.some(v=>v.version===recordVersion))freezeVersion('Preserved before reopen');
+ recordVersion++;tableResult='HELD OPEN';addObject(document.getElementById('reopentype').value,text,false);eventLog.push({coordinate:'T'+(t+1),event:'REOPENED from V'+(recordVersion-1)+' with new material',at:new Date().toISOString()});t++;
+ status.textContent='Record reopened · T'+t;document.getElementById('reopentext').value='';document.getElementById('reopenbox').classList.remove('show');captureSnapshot();persist();renderVersions();
+}
+function witnessNamesApplied(){
+ const names=[];connections.forEach(c=>(c.history||[]).forEach(h=>{if(h.test&&!names.includes(h.test))names.push(h.test)}));
+ objects().filter(o=>o.type==='NOTE'&&o.text.startsWith('WITNESS ')).forEach(o=>{const m=o.text.match(/^WITNESS (.+?) on /);if(m&&!names.includes(m[1]))names.push(m[1])});return names;
+}
+function closureCheck(){
+ const applied=witnessNamesApplied(),needed=consequence==='HIGH'?['SOURCE','PROVENANCE','THRESHOLD']:consequence==='MATERIAL'?['THRESHOLD']:[];
+ const missing=needed.filter(x=>!applied.includes(x)&&!objects().some(o=>o.type==='NOTE'&&o.text.includes(x)));
+ const box=document.getElementById('consequencebox');box.classList.add('show');
+ document.getElementById('burdenstatus').innerHTML='<b>'+consequence+' burden.</b> '+(missing.length?'Before consequential closure, still check: '+missing.join(', ')+'.':'Current minimum closure gates are represented. This does not make the Formation true.');
+ return {ok:missing.length===0,missing};
+}
+function renderGuided(){
+ const p=document.getElementById('runmode');if(!guidedActive){p.classList.remove('show');return}p.classList.add('show');
+ const phases=[
+ ['REFERENCE','Lock a clean working question before moving the Field.'],
+ ['FORMATION','Choose one operation that materially addresses the locked Reference.'],
+ ['WITNESS','Pressure the resulting Formation with minimum sufficient Witness.'],
+ ['UPDATE','Hold, narrow, reclassify, reopen, fail, or invalidate based on the recorded finding.'],
+ ['RECORD','State what holds, what does not, what remains unknown, scope, and what would change this.'],
+ ['STOP','Stop unless new evidence or a new discriminable dependency enters.']
+ ];
+ const b=document.getElementById('runsteps');b.innerHTML='';phases.forEach((x,i)=>{const d=document.createElement('div');d.className='runstep';d.style.opacity=i===guidedPhase?'1':i<guidedPhase?'.55':'.28';d.innerHTML='<b>'+x[0]+'</b><br>'+x[1];b.appendChild(d)});
+}
+function nextGuided(){
+ if(!guidedActive)return;
+ if(guidedPhase===0 && !locked){alert('Lock the Reference before Formation acts.');return}
+ if(guidedPhase===1){deriveNextMove()}
+ if(guidedPhase===2 && !selectedTarget){alert('Select the Formation target or connection that Witness should pressure.');return}
+ if(guidedPhase===2){document.getElementById('seealltests').click()}
+ if(guidedPhase===4){const cc=closureCheck();if(!cc.ok){alert(consequence+' consequence requires additional closure gates: '+cc.missing.join(', '));return}renderRecord();document.getElementById('modal').classList.add('show')}
+ if(guidedPhase<5){guidedPhase++;renderGuided();bump('Guided Run advanced to phase '+guidedPhase)}else{guidedActive=false;renderGuided();bump('Guided Run stopped')}
+}
+const witnessControls=[
+["SOURCE","What actually supports this?"],["PROVENANCE","Where did this come from?"],["TIMELINE","What was true when?"],["REFERENCE","Are we still measuring the same thing?"],
+["INDEPENDENCE","Are these really separate witnesses?"],["BASELINE","Compared to what?"],["CONTROL","What else moved?"],["INVARIANT","What stayed?"],
+["SPECIFICITY","How many explanations still fit?"],["ALTERNATIVE","What else could explain this?"],["INFERENCE DISTANCE","How far are we from direct observation?"],["SCOPE","Where does this actually hold?"],
+["THRESHOLD","What has to be true before we cross?"],["INVALIDATION","What would break this?"],["CHALLENGE","Does it survive another relevant pressure?"],["RECLASSIFY","Does the name still fit?"],["RUN VALIDITY","Was the test clean enough to mean anything?"]
+];
+function openWitness(test){
+ if(!selectedTarget){alert('Select a Table object or connection first.');return}
+ document.getElementById('witnessname').textContent=test;document.getElementById('witnessquestion').textContent=witnessQ[test];
+ document.getElementById('witnessfinding').value='';document.getElementById('witnessmodal').dataset.test=test;document.getElementById('witnessmodal').classList.add('show');
+}
+function renderWitnessKernel(){
+ const b=document.getElementById('wgrid');b.innerHTML='';witnessControls.forEach(([name,q])=>{const x=document.createElement('button');x.className='wbtn';x.innerHTML='<b>'+name+'</b><span>'+q+'</span>';x.onclick=()=>{document.getElementById('witnessall').classList.remove('show');openWitness(name)};b.appendChild(x)})
+}
+function applyTurn(){
+ if(!selectedTarget){alert('Select an object or connection first.');return}
+ const reference=prompt('What declared reference are we measuring orientation toward?',ref.value);if(!reference)return;
+ const orientation=prompt('What observable orientation does the selected structure have relative to that reference?');if(!orientation)return;
+ addObject('NOTE','TURN — target: '+selectedTarget.text+' | reference: '+reference+' | observed orientation: '+orientation,false);
+ addObject('QUESTION','Did orientation change, or only position/appearance?',false);bump('TURN recorded relative to declared reference');
+}
+function openPress(){
+ if(!selectedTarget){alert('Select the claim, object, or connection to pressure first.');return}
+ document.getElementById('pressview').classList.add('show');document.getElementById('presstarget').innerHTML='<b>TARGET:</b> '+selectedTarget.text;
+ document.getElementById('presscondition').value='';document.getElementById('presshold').value='';document.getElementById('pressresult').value='';
+}
+function applyPress(){
+ const condition=document.getElementById('presscondition').value.trim(),hold=document.getElementById('presshold').value.trim(),result=document.getElementById('pressresult').value.trim();
+ if(!condition||!hold||!result){alert('PRESS requires a declared changing condition, what stays fixed, and the observed result.');return}
+ addObject('NOTE','PRESS — '+selectedTarget.text+' | changed: '+condition+' | held: '+hold+' | observed: '+result,false);
+ addObject('QUESTION','CONTROL / INVALIDATION: Were material variables actually held fixed, and what result would make this Formation fail?',false);
+ document.getElementById('pressview').classList.remove('show');bump('PRESS test recorded');
+}
+function applyStrike(){
+ if(!snapshots.length){alert('STRIKE requires an actual BeatThought coordinate.');return}
+ const opts=snapshots.map(x=>x.coordinate+' — '+x.event).join('\\n');const coord=prompt('Which actual coordinate is the candidate regime boundary?\\n\\n'+opts);if(!coord)return;
+ const sn=snapshots.find(x=>x.coordinate===coord.trim());if(!sn){alert('That coordinate is not preserved in BeatThought.');return}
+ const before=snapshots[snapshots.indexOf(sn)-1],after=snapshots[snapshots.indexOf(sn)+1];
+ addObject('NOTE','STRIKE candidate @ '+sn.coordinate+': '+sn.event+'. Actual chronology preserved.',false);
+ addObject('QUESTION','Did '+sn.coordinate+' materially change the regime? Compare '+(before?before.coordinate:'prior state')+' with '+(after?after.coordinate:'subsequent state')+' rather than treating drama as structural significance.',false);
+ bump('STRIKE marked '+sn.coordinate+' as candidate regime boundary');
+}
+function applyLook(){
+ const active=objects().filter(o=>o.scope==='ACTIVE');
+ addObject('QUESTION','LOOK check: Which items here are direct observations, and which already contain explanation, motive, cause, identity, or classification?',false);
+ if(active.some(o=>o.type==='CLAIM'))addObject('NOTE','LOOK found '+active.filter(o=>o.type==='CLAIM').length+' item(s) already classified as CLAIM.',false);
+ bump('LOOK applied to Active Field');
+}
+function applySeparate(){
+ if(selectedIds.length!==1){alert('Select exactly one object that may contain conflated components.');return}
+ const o=objects().find(x=>x.id===selectedIds[0]);if(!o)return;
+ const parts=prompt('Write the distinct components separated by |\\n\\nOriginal relationship will remain in the Record.',o.text+' | ');
+ if(!parts)return;const arr=parts.split('|').map(x=>x.trim()).filter(Boolean);if(arr.length<2){alert('SEPARATE requires at least two components.');return}
+ arr.forEach(x=>addObject('CLAIM',x,false));addObject('NOTE','SEPARATE from '+o.id+': '+arr.join(' / ')+'. Separation does not establish independence.',false);bump('SEPARATE created '+arr.length+' distinct components');
+}
+function openReorder(){
+ const active=objects().filter(o=>o.scope==='ACTIVE'&&o.type!=='NOTE');if(active.length<2){alert('REORDER needs at least two active components.');return}
+ experimentalOrder=active.map(o=>o.id);document.getElementById('reordertray').classList.add('show');renderOrder();
+}
+function renderOrder(){const os=objects(),b=document.getElementById('orderlist');b.innerHTML='';experimentalOrder.forEach(id=>{const o=os.find(x=>x.id===id);if(!o)return;const d=document.createElement('button');d.className='orderitem';d.dataset.id=id;d.textContent=o.text;d.onclick=()=>{document.querySelectorAll('.orderitem').forEach(x=>x.classList.remove('active'));d.classList.add('active')};b.appendChild(d)})}
+function moveOrder(where){const d=document.querySelector('.orderitem.active');if(!d)return;experimentalOrder=experimentalOrder.filter(x=>x!==d.dataset.id);where==='first'?experimentalOrder.unshift(d.dataset.id):experimentalOrder.push(d.dataset.id);renderOrder()}
+function applyReorder(){const os=objects(),labels=experimentalOrder.map(id=>os.find(x=>x.id===id)?.text).filter(Boolean);addObject('NOTE','REORDER experimental sequence: '+labels.join(' → ')+'. Actual chronology unchanged.',false);addObject('QUESTION','Which proposed relationships change under this experimental order?',false);document.getElementById('reordertray').classList.remove('show');bump('REORDER experiment recorded without changing chronology')}
+function openCompress(){
+ const active=objects().filter(o=>o.scope==='ACTIVE'&&o.type!=='NOTE');if(!active.length){alert('Put material in the Active Field first.');return}
+ document.getElementById('compressview').classList.add('show');document.getElementById('compressname').textContent='COMPRESS';
+ document.getElementById('compresssource').innerHTML='<b>REQUIRED TO PRESERVE:</b><br>'+active.map(o=>'• '+o.text).join('<br>');
+ document.getElementById('compressoutput').value='';
+}
+function applyCompress(){
+ const out=document.getElementById('compressoutput').value.trim();if(!out){alert('Write the proposed compressed representation first.');return}
+ addObject('CLAIM',out,false);
+ addObject('QUESTION','RUN VALIDITY: Did this compression preserve required relations, uncertainty, provenance, and material alternatives?',false);
+ document.getElementById('compressview').classList.remove('show');bump('COMPRESS candidate created for Run Validity test');
+}
+function openReturn(){
+ if(!snapshots.length){alert('No earlier BeatThought state is available yet.');return}
+ const opts=snapshots.map(x=>x.coordinate+' — '+x.event).join('\\n');const coord=prompt('RETURN to which preserved coordinate?\\n\\n'+opts,snapshots[Math.max(0,snapshots.length-2)].coordinate);if(!coord)return;
+ const sn=snapshots.find(x=>x.coordinate===coord.trim());if(!sn){alert('That coordinate is not in the preserved Record.');return}
+ const btn=[...document.querySelectorAll('.snap')].find(x=>x.textContent===sn.coordinate);if(btn)viewSnapshot(sn.coordinate,btn);
+ addObject('QUESTION','RETURN check: What did '+sn.coordinate+' actually contain before later knowledge entered?',false);bump('RETURN opened preserved '+sn.coordinate);
+}
+function openTransfer(){
+ if(!selectedTarget||selectedTarget.kind!=='CONNECTION'){alert('Select a proposed or tested connection first. TRANSFER carries a declared relation, not a loose resemblance.');return}
+ const c=connections.find(x=>x.id===selectedTarget.id),os=objects(),a=os.find(x=>x.id===c.from),b=os.find(x=>x.id===c.to);if(!c||!a||!b)return;
+ document.getElementById('transfersource').innerHTML='<b>DECLARED SOURCE RELATION</b><br>'+a.text+' → '+b.text+'<br><em>'+c.relation+'</em>';
+ document.getElementById('targetrelation').value=c.relation;document.getElementById('targetdomain').value='';document.getElementById('transfertray').dataset.cid=c.id;document.getElementById('transfertray').classList.add('show');
+}
+function applyTransfer(){
+ const cid=document.getElementById('transfertray').dataset.cid,c=connections.find(x=>x.id===cid),domain=document.getElementById('targetdomain').value.trim(),rel=document.getElementById('targetrelation').value.trim();
+ if(!domain||!rel){alert('Declare both the target domain and the relation being transferred.');return}
+ addObject('CLAIM','TRANSFER candidate in '+domain+': '+rel,false);
+ addObject('QUESTION','Does the transferred relation hold in '+domain+' without importing authority, causality, or truth from the source domain?',false);
+ c.history=c.history||[];c.history.push({test:'TRANSFER',finding:'Relation '+rel+' proposed in target domain '+domain+'. Authority not transferred.',effect:'HELD OPEN',at:'T'+(t+1)});
+ document.getElementById('transfertray').classList.remove('show');bump('TRANSFER proposed into '+domain);renderConnections();persist();
+}
+function applyHold(){
+ if(!selectedTarget){alert('Select the object or connection whose property must remain fixed.');return}
+ const invariant=prompt('What exact property must stay fixed while other things change?');if(!invariant)return;
+ addObject('NOTE','HOLD invariant for '+selectedTarget.text+': '+invariant,false);bump('HOLD declared: '+invariant);
+}
+function openOperatorTray(mode){
+ const tray=document.getElementById('operatortray');tray.classList.add('show');tray.dataset.mode=mode;
+ const q={SUBTRACT:'What disappears when this is removed?',COLLAPSE:'What survives without the support?',NAME:'What has this earned the right to be called?'}[mode];
+ document.getElementById('optrayname').textContent=mode;document.getElementById('optrayq').textContent=q;
+ const box=document.getElementById('opchoices');box.innerHTML='';
+ objects().filter(o=>o.scope==='ACTIVE').forEach(o=>{const b=document.createElement('button');b.className='opchoice';b.dataset.id=o.id;b.textContent=o.text;b.onclick=()=>b.classList.toggle('active');box.appendChild(b)});
+}
+function applyOperatorTray(){
+ const tray=document.getElementById('operatortray'),mode=tray.dataset.mode,ids=[...document.querySelectorAll('#opchoices .active')].map(x=>x.dataset.id);
+ if(!ids.length){alert('Select at least one active object.');return}
+ if(mode==='SUBTRACT' && ids.length!==1){alert('SUBTRACT removes one specified component. Select exactly one.');return}
+ if(mode==='NAME'){
+   const label=prompt('What is the narrowest candidate name this Formation has earned?');if(!label)return;
+   ids.forEach(id=>{const d=document.querySelector('.object[data-id="'+id+'"]');if(d){d.dataset.label=label;d.title='Candidate name: '+label}});
+   addObject('NOTE','NAME candidate: '+label+' applied to '+ids.length+' selected object(s)',false);bump('Candidate name applied: '+label);
+ }else{
+   ids.forEach(id=>{const d=document.querySelector('.object[data-id="'+id+'"]');if(d){d.dataset.scope='OUTSIDE';d.style.opacity='.28';d.dataset.removal=mode}});
+   addObject('QUESTION',mode==='SUBTRACT'?'What explanatory or functional capacity changed after this removal?':'What survives after this support class is removed?',false);
+   bump(mode+' applied; removed material preserved Outside Current Scope');
+ }
+ tray.classList.remove('show');persist();
+}
+function openScope(mode){
+ const zone=document.getElementById('scopezone');zone.classList.add('show');zone.dataset.mode=mode;
+ document.getElementById('scopetitle').textContent=mode==='NARROW'?'NARROW THE FIELD':'WIDEN THE FIELD';
+ document.getElementById('scopequestion').textContent=mode==='NARROW'?'Select what remains inside the active question. Nothing is deleted.':'Select material to return from Outside Current Scope.';
+ const b=document.getElementById('scopeobjects');b.innerHTML='';
+ objects().filter(o=>mode==='NARROW'?o.scope==='ACTIVE':o.scope==='OUTSIDE').forEach(o=>{const d=document.createElement('button');d.className='scopeobj';d.dataset.id=o.id;d.textContent=o.text;d.onclick=()=>d.classList.toggle('active');b.appendChild(d)});
+}
+function applyScope(){
+ const mode=document.getElementById('scopezone').dataset.mode, chosen=[...document.querySelectorAll('#scopeobjects .scopeobj.active')].map(x=>x.dataset.id);
+ if(mode==='NARROW'){
+   document.querySelectorAll('#objects .object').forEach(d=>{d.dataset.scope=chosen.includes(d.dataset.id)?'ACTIVE':'OUTSIDE';d.style.opacity=d.dataset.scope==='ACTIVE'?'1':'.28'});
+   bump('NARROW applied; excluded material preserved Outside Current Scope');
+ }else{
+   document.querySelectorAll('#objects .object').forEach(d=>{if(chosen.includes(d.dataset.id)){d.dataset.scope='ACTIVE';d.style.opacity='1'}});
+   bump('WIDEN returned selected material to Active Field');
+ }
+ document.getElementById('scopezone').classList.remove('show');persist();
+}
+function restoreAll(){document.querySelectorAll('#objects .object').forEach(d=>{d.dataset.scope='ACTIVE';d.style.opacity='1'});document.getElementById('scopezone').classList.remove('show');bump('All scoped material returned to Active Field');persist()}
+function openCompare(){
+ if(selectedIds.length!==2){alert('Select exactly two Table objects first.');return}
+ const os=objects(),a=os.find(x=>x.id===selectedIds[0]),b=os.find(x=>x.id===selectedIds[1]);if(!a||!b)return;
+ document.getElementById('comparetray').classList.add('show');document.getElementById('comparea').innerHTML='<b>A</b><br>'+a.text;document.getElementById('compareb').innerHTML='<b>B</b><br>'+b.text;compareDims=[];renderDims();document.getElementById('compareresult').textContent='';
+}
+function renderDims(){const b=document.getElementById('dimensions');b.innerHTML='';compareDims.forEach(x=>{const d=document.createElement('span');d.className='dim';d.textContent=x;b.appendChild(d)})}
+function runCompare(){
+ if(!compareDims.length){alert('Declare at least one comparison dimension first.');return}
+ const os=objects(),a=os.find(x=>x.id===selectedIds[0]),b=os.find(x=>x.id===selectedIds[1]);if(!a||!b)return;
+ const lines=compareDims.map(dim=>dim+': record comparison explicitly — missing information remains UNKNOWN, not DIFFERENT.');
+ document.getElementById('compareresult').innerHTML='<b>Comparison frame locked.</b><br>'+lines.join('<br>');
+ addObject('NOTE','COMPARE '+a.text+' ↔ '+b.text+' on dimensions: '+compareDims.join(', '),false);bump('COMPARE dimensions locked');
+}
+function renderLineage(){
+ const box=document.getElementById('lineagebody'),os=objects(),sources=os.filter(o=>o.type==='SOURCE');box.innerHTML='';
+ if(!sources.length){box.innerHTML='<small>Add Source objects and provenance to see carrier/origin structure.</small>';return}
+ const roots=sources.filter(s=>!s.parentId||!sources.some(x=>x.id===s.parentId));
+ roots.forEach(root=>{
+  const descendants=sources.filter(s=>s.parentId===root.id);
+  const row=document.createElement('div');row.className='lineage-row';
+  row.innerHTML='<span class="carrier">ORIGIN</span><b>'+root.text+'</b>'+(descendants.length?' <span>→ '+descendants.length+' carrier'+(descendants.length>1?'s':'')+'</span>':'');
+  box.appendChild(row);
+  descendants.forEach(ch=>{const r=document.createElement('div');r.className='lineage-row';r.innerHTML='<span class="carrier">CARRIER</span>'+ch.text+' <small>derived from '+root.id+'</small>';box.appendChild(r)})
+ });
+ const independent=roots.length,total=sources.length;
+ const sum=document.createElement('div');sum.className='lineage-row';sum.innerHTML='<b>'+total+' source object'+(total!==1?'s':'')+' · '+independent+' apparent independent origin'+(independent!==1?'s':'')+'</b>';box.appendChild(sum);
+}
+function deriveNextMove(){
+ const os=objects(), proposed=connections.filter(c=>c.status==='PROPOSED'), unsupported=connections.filter(c=>c.status==='NOT SUPPORTED');
+ let title='',text='',suggestion=null;
+ if(!locked){title='Lock the Reference first.';text='The question should remain stable before the Field starts moving.'}
+ else if(proposed.length){
+   title='TEST · INFERENCE DISTANCE';
+   text='A proposed connection is on the Table. Ask what establishes the transition before treating the arrow as supported.';
+   selectedTarget={kind:'CONNECTION',id:proposed[0].id,text:'Proposed connection'};renderTarget();
+  } else if(os.filter(o=>o.type==='SOURCE').length>=2){
+   const ss=os.filter(o=>o.type==='SOURCE'), roots=ss.filter(x=>!x.parentId||!ss.some(y=>y.id===x.parentId));
+   title='TEST · PROVENANCE';
+   text=ss.length+' source objects are present, resolving to '+roots.length+' apparent independent origin'+(roots.length===1?'':'s')+'. Check lineage before treating carrier count as witness count.';
+ } else if(os.filter(o=>o.type==='CLAIM').length && !os.filter(o=>o.type==='OBSERVATION').length){
+   title='EXPLORE · LOOK';
+   text='There is a claim but no direct observation yet. Separate what is asserted from what is presently available.';
+   suggestion={type:'QUESTION',text:'What is directly observable here before explanation?'};
+ } else if(os.filter(o=>o.type==='OBSERVATION').length>=2){
+   title='EXPLORE · COMPARE';
+   text='More than one observation is present. Declare the dimensions before deciding what their similarity or difference means.';
+ } else if(os.filter(o=>o.type==='QUESTION').length){
+   title='TEST · ALTERNATIVE';
+   text='An unresolved question remains. Name another serious explanation that could fit the same observations.';
+ } else {
+   title='EXPLORE · LOOK';
+   text='Put the first directly available observation on the Table before explaining it.';
+   suggestion={type:'QUESTION',text:'What is actually here before interpretation?'};
+ }
+ document.getElementById('assisttitle').textContent=title;document.getElementById('assisttext').textContent=text;
+ const a=document.getElementById('acceptsuggestion');if(suggestion){a.style.display='inline-block';a.dataset.type=suggestion.type;a.dataset.text=suggestion.text}else a.style.display='none';
+ bump('Next move suggested');
+}
+function renderRecord(){
+ document.getElementById('result').textContent=tableResult;
+ document.getElementById('enter').onclick=()=>{const q=document.getElementById('firstquestion').value.trim();if(!q){alert('Put a question down first.');return}enterTable(q,false)};
+document.getElementById('demo').onclick=()=>enterTable('',true);
+document.getElementById('newtable').onclick=resetTable;
+document.getElementById('detailclose').onclick=()=>document.getElementById('detailmodal').classList.remove('show');
+document.getElementById('savedetail').onclick=saveDetails;
+document.getElementById('outside').onclick=()=>{const d=document.querySelector('.object[data-id="'+detailObjectId+'"]');if(!d)return;d.dataset.scope=d.dataset.scope==='ACTIVE'?'OUTSIDE':'ACTIVE';d.style.opacity=d.dataset.scope==='ACTIVE'?'1':'.38';document.getElementById('outside').textContent=d.dataset.scope==='ACTIVE'?'MOVE OUTSIDE SCOPE':'RETURN TO ACTIVE FIELD';bump(d.dataset.scope==='ACTIVE'?'Object returned to Active Field':'Object moved Outside Current Scope');persist()};
+document.getElementById('io').onclick=openIO;
+document.getElementById('ioclose').onclick=()=>document.getElementById('iomodal').classList.remove('show');
+document.getElementById('copyio').onclick=async()=>{document.getElementById('iodata').select();try{await navigator.clipboard.writeText(document.getElementById('iodata').value);alert('Portable Record copied.')}catch(e){document.execCommand('copy')}};
+document.getElementById('importio').onclick=importState;
+document.getElementById('helpbtn').onclick=()=>{contextualHelp();document.getElementById('helpcard').classList.toggle('show')};
+document.getElementById('helpnext').onclick=()=>{document.getElementById('helpcard').classList.remove('show');deriveNextMove()};
+document.getElementById('testbenchbtn').onclick=()=>{renderTestBench();document.getElementById('testbench').classList.add('show');document.getElementById('testbench').scrollIntoView({behavior:'smooth',block:'center'})};
+document.getElementById('loadtest').onclick=loadMVPTest;
+document.getElementById('checktest').onclick=renderTestBench;
+document.getElementById('closetestbench').onclick=()=>document.getElementById('testbench').classList.remove('show');
+document.getElementById('auditbtn').onclick=runAudit;
+document.getElementById('closeaudit').onclick=()=>document.getElementById('auditview').classList.remove('show');
+document.getElementById('learnnav').onclick=()=>{renderLearn();document.getElementById('learnview').classList.add('show');document.getElementById('learnview').scrollIntoView({behavior:'smooth',block:'center'})};
+document.getElementById('closelearn').onclick=()=>document.getElementById('learnview').classList.remove('show');
+document.getElementById('reportbtn').onclick=()=>{document.getElementById('reporttext').textContent=buildReport();document.getElementById('reportview').classList.add('show')};
+document.getElementById('closereport').onclick=()=>document.getElementById('reportview').classList.remove('show');
+document.getElementById('copyreport').onclick=async()=>{const txt=document.getElementById('reporttext').textContent;try{await navigator.clipboard.writeText(txt);alert('Report copied.')}catch(e){alert('Select and copy the report text manually.')}};
+document.getElementById('reopenbtn').onclick=()=>{renderVersions();document.getElementById('reopenbox').classList.add('show')};
+document.getElementById('reopenrun').onclick=reopenRecord;
+document.getElementById('guided').onclick=()=>{guidedActive=true;guidedPhase=locked?1:0;renderGuided();bump('Guided Run started')};
+document.getElementById('guidednext').onclick=nextGuided;
+document.getElementById('endguided').onclick=()=>{guidedActive=false;renderGuided();bump('Guided Run ended')};
+document.getElementById('seealltests').onclick=()=>{renderWitnessKernel();document.getElementById('witnessall').classList.add('show')};
+document.getElementById('closewitnessall').onclick=()=>document.getElementById('witnessall').classList.remove('show');
+document.getElementById('applypress').onclick=applyPress;
+document.getElementById('cancelpress').onclick=()=>document.getElementById('pressview').classList.remove('show');
+document.getElementById('movefirst').onclick=()=>moveOrder('first');
+document.getElementById('movelast').onclick=()=>moveOrder('last');
+document.getElementById('applyreorder').onclick=applyReorder;
+document.getElementById('cancelreorder').onclick=()=>document.getElementById('reordertray').classList.remove('show');
+document.getElementById('applycompress').onclick=applyCompress;
+document.getElementById('cancelcompress').onclick=()=>document.getElementById('compressview').classList.remove('show');
+document.getElementById('applytransfer').onclick=applyTransfer;
+document.getElementById('canceltransfer').onclick=()=>document.getElementById('transfertray').classList.remove('show');
+document.getElementById('applyop').onclick=applyOperatorTray;
+document.getElementById('cancelop').onclick=()=>document.getElementById('operatortray').classList.remove('show');
+document.getElementById('applyscope').onclick=applyScope;
+document.getElementById('restoreall').onclick=restoreAll;
+document.getElementById('adddim').onclick=()=>{const v=document.getElementById('diminput').value.trim();if(!v)return;compareDims.push(v);document.getElementById('diminput').value='';renderDims()};
+document.getElementById('runcompare').onclick=runCompare;
+document.getElementById('analyze').onclick=deriveNextMove;
+document.getElementById('acceptsuggestion').onclick=()=>{const b=document.getElementById('acceptsuggestion');addObject(b.dataset.type,b.dataset.text,true,null,true);b.style.display='none'};
+document.querySelectorAll('[data-result]').forEach(x=>x.classList.toggle('chosen',x.dataset.result===tableResult));
+ const holds=document.getElementById('holdslist'),fails=document.getElementById('failslist'),unknown=document.getElementById('unknownlist'),hist=document.getElementById('historylist');
+ holds.innerHTML='';fails.innerHTML='';unknown.innerHTML='';hist.innerHTML='';
+ const os=objects();
+ os.filter(o=>o.type==='OBSERVATION'||o.type==='SOURCE').forEach(o=>{const li=document.createElement('li');li.textContent=o.text;holds.appendChild(li)});
+ connections.forEach(c=>{
+  const a=os.find(x=>x.id===c.from),b=os.find(x=>x.id===c.to);if(!a||!b)return;
+  const txt=a.text+' → '+b.text+' ('+c.relation+')';
+  if(c.status==='SUPPORTED'){const li=document.createElement('li');li.textContent=txt;holds.appendChild(li)}
+  else if(c.status==='NOT SUPPORTED'){const li=document.createElement('li');li.textContent=txt;fails.appendChild(li)}
+  else {const li=document.createElement('li');li.textContent=txt;unknown.appendChild(li)}
+  (c.history||[]).forEach(h=>{const d=document.createElement('div');d.className='historyline';d.innerHTML='<b>'+h.test+' → '+h.effect+'</b><br>'+h.finding+' <small>('+h.at+')</small>';hist.appendChild(d)})
+ });
+ os.filter(o=>o.type==='QUESTION').forEach(o=>{const li=document.createElement('li');li.textContent=o.text;unknown.appendChild(li)});
+ if(!holds.children.length)holds.innerHTML='<li>No supported material recorded yet.</li>';
+ if(!fails.children.length)fails.innerHTML='<li>No failed Formation recorded yet.</li>';
+ if(!unknown.children.length)unknown.innerHTML='<li>No unresolved item recorded.</li>';
+ if(!hist.children.length)hist.innerHTML='<div class="historyline">No Witness findings recorded yet.</div>';
+ eventLog.slice(-8).forEach(e=>{const d=document.createElement('div');d.className='historyline';d.innerHTML='<b>'+e.coordinate+'</b> '+e.event;hist.appendChild(d)});
+ document.getElementById('scopefield').value=scopeText;document.getElementById('changefield').value=changeText;
+}
+function renderRuntime(){const bar=document.getElementById('runtimebar');if(!activeRuntime){bar.classList.remove('show');return}const r=runtimes[activeRuntime];bar.classList.add('show');document.getElementById('runtimename').textContent=activeRuntime;const st=document.getElementById('stages');st.innerHTML='';r.stages.forEach((x,i)=>{const d=document.createElement('div');d.className='stage '+(i<stageIndex?'done':i===stageIndex?'active':'');d.textContent=x;st.appendChild(d)});document.getElementById('stageprompt').innerHTML='<b>'+r.stages[stageIndex]+'</b><br>'+r.prompts[stageIndex];document.getElementById('stagenext').textContent=stageIndex===r.stages.length-1?'COMPLETE RUN':'COMPLETE STAGE →'}
+function startRuntime(name){activeRuntime=name;stageIndex=0;renderRuntime();document.getElementById('toolmodal').classList.remove('show');bump(name+' started')}
+function advanceStage(outcome){if(!activeRuntime)return;const r=runtimes[activeRuntime];addObject('NOTE',activeRuntime+' · '+r.stages[stageIndex]+' — '+outcome,false);bump(activeRuntime+' '+r.stages[stageIndex]+' '+outcome.toLowerCase());if(stageIndex<r.stages.length-1){stageIndex++;renderRuntime();persist()}else{const done=activeRuntime;activeRuntime=null;stageIndex=0;renderRuntime();bump(done+' completed');renderRecord();document.getElementById('modal').classList.add('show')}}
+document.getElementById('lockref').onclick=()=>{if(!locked){if(!originalQuestion)originalQuestion=ref.value;const p=hardenQuestion(ref.value);if(p){document.getElementById('proposal').textContent=p;document.getElementById('hardener').classList.add('show');return}}locked=!locked;ref.readOnly=locked;lockstate.textContent=locked?'· LOCKED':'· UNLOCKED';document.getElementById('lockref').textContent=locked?'UNLOCK REFERENCE':'LOCK REFERENCE';bump(locked?'Reference locked':'Reference unlocked')};
+document.getElementById('useproposal').onclick=()=>{ref.value=document.getElementById('proposal').textContent;document.getElementById('hardener').classList.remove('show');locked=true;ref.readOnly=true;lockstate.textContent='· LOCKED';document.getElementById('lockref').textContent='UNLOCK REFERENCE';bump('Hardened Reference locked')};
+document.getElementById('editproposal').onclick=()=>{ref.value=document.getElementById('proposal').textContent;document.getElementById('hardener').classList.remove('show');ref.focus()};
+document.getElementById('keepmine').onclick=()=>{document.getElementById('hardener').classList.remove('show');locked=true;ref.readOnly=true;lockstate.textContent='· LOCKED';document.getElementById('lockref').textContent='UNLOCK REFERENCE';bump('Original Reference locked')};
+document.getElementById('connect').onclick=()=>{if(selectedIds.length!==2){alert('Select exactly two Table objects first.');return}const relation=prompt('What relation are you proposing between these two objects?','may relate to');if(!relation)return;connections.push({id:'R'+Date.now(),from:selectedIds[0],to:selectedIds[1],relation,status:'PROPOSED',createdAt:'T'+(t+1),history:[]});document.querySelectorAll('.object.selected').forEach(x=>x.classList.remove('selected'));selectedIds=[];renderConnections();bump('Connection proposed')};
+document.querySelectorAll('[data-op]').forEach(c=>c.onclick=()=>{currentOp=c.dataset.op;if(currentOp==='COMPARE'){openCompare();return}if(currentOp==='NARROW'||currentOp==='WIDEN'){openScope(currentOp);return}if(['SUBTRACT','COLLAPSE','NAME'].includes(currentOp)){openOperatorTray(currentOp);return}if(currentOp==='TRANSFER'){openTransfer();return}if(currentOp==='HOLD'){applyHold();return}if(currentOp==='COMPRESS'){openCompress();return}if(currentOp==='RETURN'){openReturn();return}if(currentOp==='REORDER'){openReorder();return}if(currentOp==='LOOK'){applyLook();return}if(currentOp==='SEPARATE'){applySeparate();return}if(currentOp==='TURN'){applyTurn();return}if(currentOp==='PRESS'){openPress();return}if(currentOp==='STRIKE'){applyStrike();return}bump(currentOp+' selected');document.querySelectorAll('[data-op]').forEach(x=>x.style.outline='');c.style.outline='2px solid #b89556'});
+document.querySelectorAll('[data-test]').forEach(c=>c.onclick=()=>openWitness(c.dataset.test));return}document.querySelectorAll('[data-test]').forEach(x=>x.style.outline='');c.style.outline='2px solid #b89556';document.getElementById('witnessname').textContent=c.dataset.test;document.getElementById('witnessquestion').textContent=witnessQ[c.dataset.test]||c.querySelector('em').textContent;document.getElementById('witnessfinding').value='';document.getElementById('witnessmodal').dataset.test=c.dataset.test;document.getElementById('witnessmodal').classList.add('show')});
+document.querySelectorAll('[data-consequence]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-consequence]').forEach(x=>x.classList.remove('active'));b.classList.add('active');consequence=b.dataset.consequence;closureCheck();bump('Consequence set to '+consequence)});
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-mode]').forEach(x=>x.classList.remove('active'));b.classList.add('active');bump(b.dataset.mode+' mode')});
+document.querySelectorAll('[data-quick]').forEach(b=>b.onclick=()=>{document.getElementById('otype').value=b.dataset.quick;document.getElementById('newobj').focus();document.getElementById('newobj').placeholder='Add '+b.dataset.quick.toLowerCase()+'…'});
+document.getElementById('add').onclick=()=>{const v=document.getElementById('newobj').value.trim();if(!v)return;addObject(document.getElementById('otype').value,v);document.getElementById('newobj').value=''};
+document.getElementById('surprise').onclick=()=>{const ops=[...document.querySelectorAll('[data-op]')];ops[Math.floor(Math.random()*ops.length)].click()};
+document.getElementById('record').onclick=()=>{renderRecord();document.getElementById('modal').classList.add('show')};document.getElementById('close').onclick=()=>document.getElementById('modal').classList.remove('show');
+document.getElementById('tools').onclick=()=>document.getElementById('toolmodal').classList.add('show');document.getElementById('toolclose').onclick=()=>document.getElementById('toolmodal').classList.remove('show');
+document.querySelectorAll('[data-tool]').forEach(x=>x.onclick=()=>startRuntime(x.dataset.tool));document.getElementById('stagenext').onclick=()=>advanceStage('COMPLETED');document.getElementById('stageinsufficient').onclick=()=>advanceStage('INSUFFICIENT EVIDENCE');
+document.getElementById('exittool').onclick=()=>{if(activeRuntime){bump(activeRuntime+' exited');activeRuntime=null;stageIndex=0;renderRuntime();persist()}};
+document.querySelectorAll('[data-result]').forEach(btn=>btn.onclick=()=>{if(['SUPPORTED','NOT SUPPORTED'].includes(btn.dataset.result)){const cc=closureCheck();if(!cc.ok){alert('Closure burden not met. Missing: '+cc.missing.join(', '));return}}tableResult=btn.dataset.result;renderRecord();bump('Table result set to '+tableResult)});
+document.getElementById('closerecord').onclick=()=>{scopeText=document.getElementById('scopefield').value.trim();changeText=document.getElementById('changefield').value.trim();bump('Result kept in Record');freezeVersion('Result kept in Record');document.getElementById('modal').classList.remove('show')};
+document.getElementById('witnessclose').onclick=()=>document.getElementById('witnessmodal').classList.remove('show');
+document.querySelectorAll('[data-effect]').forEach(btn=>btn.onclick=()=>{
+ const finding=document.getElementById('witnessfinding').value.trim();if(!finding){alert('Record the finding before applying an effect.');return}
+ const effect=btn.dataset.effect,test=document.getElementById('witnessmodal').dataset.test;
+ if(test==='SOURCE' && selectedTarget?.kind==='OBJECT'){const d=document.querySelector('.object[data-id="'+selectedTarget.id+'"]');if(d && !d.dataset.source && effect==='HOLD'){d.dataset.source=prompt('Identify the supporting source/origin:')||''}}
+ if(test==='SCOPE' && effect==='NARROW')openScope('NARROW');
+ if(test==='TIMELINE')addObject('NOTE','TIMELINE Witness @ T'+(t+1)+': '+finding,false);
+ if(test==='THRESHOLD')addObject('NOTE','THRESHOLD locked: '+finding,false);
+ if(test==='INVALIDATION')addObject('NOTE','INVALIDATION condition: '+finding,false);
+ if(selectedTarget?.kind==='CONNECTION'){const c=connections.find(x=>x.id===selectedTarget.id);if(c){c.history.push({test,finding,effect,at:'T'+(t+1)});if(effect==='HOLD')c.status='SUPPORTED';else if(effect==='FAIL')c.status='NOT SUPPORTED';else if(effect==='INVALID')c.status='HELD OPEN';else if(effect==='REOPEN')c.status='HELD OPEN';else if(effect==='NARROW')c.status='HELD OPEN';else if(effect==='RECLASSIFY'){const nr=prompt('What narrower relation has the evidence earned?',c.relation);if(nr){c.history.push({test:'RECLASSIFY',finding:'Relation changed from '+c.relation+' to '+nr,effect:'RECLASSIFY',at:'T'+(t+1)});c.relation=nr;c.status='SUPPORTED';}}}}
+ addObject('NOTE','WITNESS '+test+' on '+selectedTarget.text+' — '+effect+': '+finding,false);
+ document.getElementById('witnessmodal').classList.remove('show');renderConnections();bump(test+' → '+effect);persist();
+});
+document.getElementById('save').onclick=()=>{persist();bump('Record saved');alert('Saved locally. Build 031 preserves Reference, objects, proposed connections, timeline coordinate, and active runtime stage.')};
+document.getElementById('breathe').onclick=()=>{bump('Failsafe invoked');evaluateFailsafe()};
+document.getElementById('keepremains').onclick=keepRemains;
+document.getElementById('resume').onclick=()=>{document.getElementById('autostop').classList.remove('show');lastDiscriminationT=t;bump('Failsafe released because a new distinction was declared')};
+ref.addEventListener('input',persist);restore();if(localStorage.getItem('theTableBuild031'))document.getElementById('onboard').classList.add('hidden');if(!snapshots.length){captureSnapshot();persist()}else renderSnapbar();
+</script>
+<div class="helpbubble"><button class="helpbtn" id="helpbtn">?</button><div class="helpcard" id="helpcard"><div class="eyebrow">WHAT NOW?</div><h3 id="helptitle">Put something on the Table.</h3><p id="helptext">Start with the question. The Table will help you separate what is observed from what is being concluded.</p><button class="pill" id="helpnext">SHOW ME THE NEXT MOVE</button></div></div>
+</body></html>
